@@ -7,6 +7,10 @@ import os
 from glob import glob
 from PySide import QtGui
 
+
+
+
+
 class Example(QtGui.QWidget):
     
     def __init__(self):
@@ -17,11 +21,14 @@ class Example(QtGui.QWidget):
     def initUI(self):
         
              
+      
+      srcPath = "f:/HOUDINI_CONFIG/OTLs/"
+      dstPath = "C:\Users\CORSAIR\Documents\western\Assets\OTLs"
 
 
       QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
       
-      self.setToolTip('This is a <b>QWidget</b> widget')
+      self.setToolTip('This is a <b>QWidget</b> widget -- self')
       
       
 
@@ -29,6 +36,10 @@ class Example(QtGui.QWidget):
       listSrc.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
       listSrc.resize(300,300)
       listSrc.move(10,40)
+
+      self.initList(listSrc, srcPath)
+
+
       #print(dir(listSrc))
       btnSrc = QtGui.QPushButton('Browse Source Directory', self)
       btnSrc.setToolTip('This is a <b>QPushButton</b> widget')
@@ -41,6 +52,9 @@ class Example(QtGui.QWidget):
       listDst.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
       listDst.resize(300,300)
       listDst.move(350,40)
+
+      self.initList(listDst, dstPath)
+
       #print(dir(listDst))
       btnDst = QtGui.QPushButton('Browse Destination Directory', self)
       btnDst.setToolTip('This is a <b>QPushButton</b> widget')
@@ -50,13 +64,42 @@ class Example(QtGui.QWidget):
 
 
 
+      btnCopy = QtGui.QPushButton('>>', self)
+      btnCopy.move(310, 150)   
+      btnCopy.setFixedWidth(30)
+      btnCopy.setFixedHeight(50)
+      btnCopy.clicked.connect(lambda: self.copyHDAs())
+
+
+
+
       self.setGeometry(300, 300, 700, 350)
-      self.setWindowTitle('Tooltips')    
+      self.setWindowTitle('HDA Manager')    
       self.show()
 
+    def copyHDAs(self):
+      global dstPath
+      print dstPath
 
-    def btnClicked(self) :
-      print "button clicked !"
+
+    def initList(self,list,path) :
+      
+
+      os.chdir(path) # sets the working directory
+      fileNames = glob("*")  
+      print fileNames           
+
+      model = QtGui.QStandardItemModel(list)
+      for afile in fileNames :
+       
+        if os.path.isfile(afile) :
+            if afile.endswith("otl") | afile.endswith("hdalc") :
+              item = QtGui.QStandardItem(afile)
+              item.setCheckable(True)
+              item.setToolTip('HDA file')
+              model.appendRow(item)
+
+      list.setModel(model)
 
 
     def feedList(self, list) :
@@ -77,6 +120,7 @@ class Example(QtGui.QWidget):
             if afile.endswith("otl") | afile.endswith("hdalc") :
               item = QtGui.QStandardItem(afile)
               item.setCheckable(True)
+              item.setToolTip('self')
 
               model.appendRow(item)
 
