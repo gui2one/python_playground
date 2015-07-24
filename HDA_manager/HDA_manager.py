@@ -10,8 +10,8 @@ from PySide import QtGui
 
 
 
-SRCPATH = "f:/HOUDINI_CONFIG/OTLs/"
-DSTPATH = "C:/Users/CORSAIR/Documents/western/Assets/OTLs"
+SRCPATH = "Z:/HOUDINI_CONFIG/OTLs"
+DSTPATH = "E:/temp_after"
 
 class Example(QtGui.QWidget):
     
@@ -21,10 +21,6 @@ class Example(QtGui.QWidget):
       self.initUI()
         
     def initUI(self):
-        
-             
-      
-
 
       global SRCPATH
       global DSTPATH
@@ -38,7 +34,7 @@ class Example(QtGui.QWidget):
       self.listSrc = QtGui.QListView(self)
       self.listSrc.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
       self.listSrc.resize(300,300)
-      self.listSrc.move(10,40)
+      self.listSrc.move(10,60)
 
       self.initList(self.listSrc, SRCPATH)
 
@@ -50,11 +46,22 @@ class Example(QtGui.QWidget):
       btnSrc.move(10, 10)       
       btnSrc.clicked.connect(lambda: self.feedSrcList())
 
+      self.labelSrc = QtGui.QLabel(self)
+      self.labelSrc.setText(SRCPATH)
+      self.labelSrc.resize(300,30)
+      self.labelSrc.move(10,40)
+
+
+      self.labelDst = QtGui.QLabel(self)
+      self.labelDst.setText(DSTPATH)
+      self.labelDst.resize(300,30)
+      self.labelDst.move(350,40)
+
 
       self.listDst = QtGui.QListView(self)
       self.listDst.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
       self.listDst.resize(300,300)
-      self.listDst.move(350,40)
+      self.listDst.move(350,60)
 
       self.initList(self.listDst, DSTPATH)
 
@@ -63,7 +70,7 @@ class Example(QtGui.QWidget):
       btnDst.setToolTip('This is a <b>QPushButton</b> widget')
       btnDst.resize(btnDst.sizeHint())
       btnDst.move(350, 10)       
-      btnDst.clicked.connect(lambda: self.feedList(self.listDst))      
+      btnDst.clicked.connect(lambda: self.feedDstList())      
 
 
 
@@ -90,13 +97,14 @@ class Example(QtGui.QWidget):
       selected = self.listSrc.selectedIndexes()
 
       for item in selected :
+        print item.data(), "---------------", DSTPATH
         # for meth in dir(item):
         #   print meth
         hdaName =  item.data()
-        srcFilePath = SRCPATH+hdaName
-        dstFilePath = DSTPATH+"/"+hdaName
+        srcFilePath = str(SRCPATH)+"/"+hdaName
+        dstFilePath = str(DSTPATH)+"/"+hdaName
         shutil.copyfile(srcFilePath,dstFilePath)
-        print dstFilePath
+        
 
       self.initList(self.listDst,DSTPATH)
 
@@ -137,10 +145,12 @@ class Example(QtGui.QWidget):
       dialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
       dialog.setOption(QtGui.QFileDialog.ShowDirsOnly)   
       if dialog.exec_() :
-        SRCPATH = dialog.selectedFiles()
+        SRCPATH = dialog.selectedFiles()[0]
         srcFolderPath = SRCPATH
 
-        os.chdir(srcFolderPath[0]) # sets the working directory
+        self.labelSrc.setText(SRCPATH)
+
+        os.chdir(srcFolderPath) # sets the working directory
         fileNames = glob("*")  
         # print fileNames           
       model = QtGui.QStandardItemModel(self.listSrc)
@@ -156,7 +166,38 @@ class Example(QtGui.QWidget):
 
       self.listSrc.setModel(model)
 
-      
+ 
+    def feedDstList(self) :
+      global DSTPATH
+
+    
+
+      # print listSrc
+      print "browse function"
+      dialog = QtGui.QFileDialog(self)
+      dialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
+      dialog.setOption(QtGui.QFileDialog.ShowDirsOnly)   
+      if dialog.exec_() :
+        DSTPATH = dialog.selectedFiles()[0]
+        dstFolderPath = DSTPATH
+
+        self.labelDst.setText(DSTPATH)
+
+        os.chdir(dstFolderPath) # sets the working directory
+        fileNames = glob("*")  
+        # print fileNames           
+      model = QtGui.QStandardItemModel(self.listDst)
+      for afile in fileNames :
+        print str(afile.endswith("hdalc"))
+        if os.path.isfile(afile) :
+            if afile.endswith("otl") | afile.endswith("hdalc") :
+              item = QtGui.QStandardItem(afile)
+              item.setCheckable(True)
+              item.setToolTip('self')
+
+              model.appendRow(item)
+
+      self.listDst.setModel(model)     
 
 
 
