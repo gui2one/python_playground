@@ -122,7 +122,7 @@ class Example(QtGui.QWidget):
           if os.path.isfile(afile) :
               if afile.endswith("otl") | afile.endswith("hdalc") :
                 item = QtGui.QStandardItem(afile)
-                item.setCheckable(True)
+                # item.setCheckable(True)
                 item.setToolTip('HDA file')
                 model.appendRow(item)
         list.setModel(model)
@@ -159,7 +159,7 @@ class Example(QtGui.QWidget):
         if os.path.isfile(afile) :
             if afile.endswith("otl") | afile.endswith("hdalc") :
               item = QtGui.QStandardItem(afile)
-              item.setCheckable(True)
+              # item.setCheckable(True)
               item.setToolTip('self')
 
               model.appendRow(item)
