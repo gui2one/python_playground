@@ -1,11 +1,12 @@
 import urllib
 import MercatorProjection
 import time
+import random
 """
 start value for centerLat = 46.5 increment by 0.08 maximum
 
 """
-centerLat = 46.5
+centerLat = 46.36
 
 zoom = 13
 mapWidth = 640
@@ -38,6 +39,9 @@ while centerLat > 45.0:
 
 		centerLon += 0.1
 		print("lat : %s -- lon :%s  ---> DONE" % (centerLat, centerLon))
-		time.sleep(0.5)
+		randVal = random.uniform(1.0,3.0)
+
+		print("sleeping for %3.1f minutes " % randVal )
+		time.sleep(60 * randVal)
 
 	centerLat -= 0.07
