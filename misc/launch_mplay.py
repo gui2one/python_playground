@@ -6,7 +6,7 @@ import time
 path = r"F:\HOUDINI_14_playground\render\wood_way\03\wood_way_with_tree_\*.exr"
 formatedPath = path.replace("\\","\\\\")
 while True:
-	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 14.0.395/bin/mplay.exe -p -z 100 -r 30 F:/HOUDINI_14_playground/render/anim_typos/02/anim_typos_02_*.exr") 
+	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 14.0.395/bin/mplay.exe -p -z 100 -r 30 F:/HOUDINI_14_playground/render/stade_rennais/anim_logos/04/2_logos/2_logos.*.exr F:/HOUDINI_14_playground/render/stade_rennais/anim_logos/04/light_lines/light_lines.*.exr") 
 
 	# handle = win32gui.FindWindow(None, u"MPlay*")
 	# time.sleep(10)
