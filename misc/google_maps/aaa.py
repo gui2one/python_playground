@@ -6,14 +6,14 @@ import random
 start value for centerLat = 46.5 increment by 0.08 maximum
 
 """
-centerLat = 46.64
+centerLat = 46.88 + 0.03
 
 zoom = 14
 mapWidth = 640
 mapHeight = 640
-while centerLat > 45.0:
+while centerLat < 47.1:
 # while centerLat > 46.1:
-	centerLon = -1.84
+	centerLon = -1.95
 	while centerLon < -0.45 :
 	# while centerLon < 6.0 :
 		centerPoint = MercatorProjection.G_LatLng(centerLat, centerLon)
@@ -28,7 +28,7 @@ while centerLat > 45.0:
 		mapURL = "http://maps.googleapis.com/maps/api/staticmap?center=%f,%f&zoom=%d&size=%dx%d&scale=2&maptype=satellite&sensor=false"%(centerLat,centerLon,zoom,mapWidth,mapHeight)
 		print mapURL
 		# http://maps.googleapis.com/maps/api/staticmap?center=49.141404,-121.960988&zoom=10&size=640x640&scale=2&maptype=roadmap&sensor=false"
-		fileName = "captures_vendee/"+str(centerLat) + "_" + str(centerLon)
+		fileName = "captures_vendee_FONDERIE/"+str(centerLat) + "_" + str(centerLon)
 		f = open(fileName +".png","wb")
 		f.write(urllib.urlopen(mapURL).read())
 		f.close()
@@ -39,9 +39,9 @@ while centerLat > 45.0:
 
 		centerLon += 0.03
 		print("lat : %s -- lon :%s  ---> DONE" % (centerLat, centerLon))
-		randVal = random.uniform(0.3,1.5)
+		randVal = random.uniform(1.5,3.0)
 
 		print("sleeping for %3.1f minutes " % randVal )
 		time.sleep(60 * randVal)
 
-	centerLat -= 0.03
+	centerLat += 0.03
