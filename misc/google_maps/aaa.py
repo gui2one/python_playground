@@ -6,14 +6,14 @@ import random
 start value for centerLat = 46.5 increment by 0.08 maximum
 
 """
-centerLat = 46.88 + 0.03
+centerLat = 46.43 - 0.03
 
 zoom = 14
 mapWidth = 640
 mapHeight = 640
-while centerLat < 47.1:
+while centerLat > 46.0:
 # while centerLat > 46.1:
-	centerLon = -1.95
+	centerLon = -1.9
 	while centerLon < -0.45 :
 	# while centerLon < 6.0 :
 		centerPoint = MercatorProjection.G_LatLng(centerLat, centerLon)
@@ -37,11 +37,11 @@ while centerLat < 47.1:
 		txtFile.write(str(corners))
 		txtFile.close()
 
-		centerLon += 0.03
+		centerLon += 0.035
 		print("lat : %s -- lon :%s  ---> DONE" % (centerLat, centerLon))
 		randVal = random.uniform(1.5,3.0)
 
 		print("sleeping for %3.1f minutes " % randVal )
 		time.sleep(60 * randVal)
 
-	centerLat += 0.03
+	centerLat -= 0.03
