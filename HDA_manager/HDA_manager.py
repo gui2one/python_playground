@@ -10,13 +10,13 @@ from PySide import QtGui
 
 
 
-SRCPATH = "Z:/HOUDINI_CONFIG/OTLs"
-DSTPATH = "E:/temp_after"
+SRCPATH = "F:/HOUDINI_CONFIG/OTLs"
+DSTPATH = "F:/TEMP"
 
-class Example(QtGui.QWidget):
+class HDAManager(QtGui.QWidget):
     
     def __init__(self):
-      super(Example, self).__init__()
+      super(HDAManager, self).__init__()
       
       self.initUI()
         
@@ -66,24 +66,24 @@ class Example(QtGui.QWidget):
       self.initList(self.listDst, DSTPATH)
 
       #print(dir(listDst))
-      btnDst = QtGui.QPushButton('Browse Destination Directory', self)
-      btnDst.setToolTip('This is a <b>QPushButton</b> widget')
-      btnDst.resize(btnDst.sizeHint())
-      btnDst.move(350, 10)       
-      btnDst.clicked.connect(lambda: self.feedDstList())      
+      self.btnDst = QtGui.QPushButton('Browse Destination Directory', self)
+      self.btnDst.setToolTip('This is a <b>QPushButton</b> widget')
+      self.btnDst.resize(self.btnDst.sizeHint())
+      self.btnDst.move(350, 10)       
+      self.btnDst.clicked.connect(lambda: self.feedDstList())      
 
 
 
-      btnCopy = QtGui.QPushButton('>>', self)
-      btnCopy.move(310, 150)   
-      btnCopy.setFixedWidth(30)
-      btnCopy.setFixedHeight(50)
-      btnCopy.clicked.connect(lambda: self.copyHDAs(SRCPATH, DSTPATH))
+      self.btnCopy = QtGui.QPushButton('>>', self)
+      self.btnCopy.move(310, 150)   
+      self.btnCopy.setFixedWidth(30)
+      self.btnCopy.setFixedHeight(50)
+      self.btnCopy.clicked.connect(lambda: self.copyHDAs(SRCPATH, DSTPATH))
 
 
+      # self.resized.connect(lambda: seft.resizeWindow())
 
-
-      self.setGeometry(300, 300, 700, 350)
+      self.setGeometry(300, 300, 680, 380)
       self.setWindowTitle('HDA Manager')    
       self.show()
 
@@ -97,7 +97,7 @@ class Example(QtGui.QWidget):
       selected = self.listSrc.selectedIndexes()
 
       for item in selected :
-        print item.data(), "---------------", DSTPATH
+        print item.data(), "------->", DSTPATH
         # for meth in dir(item):
         #   print meth
         hdaName =  item.data()
@@ -140,7 +140,7 @@ class Example(QtGui.QWidget):
     
 
       # print listSrc
-      print "browse function"
+      # print "browse function"
       dialog = QtGui.QFileDialog(self)
       dialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
       dialog.setOption(QtGui.QFileDialog.ShowDirsOnly)   
@@ -155,7 +155,7 @@ class Example(QtGui.QWidget):
         # print fileNames           
       model = QtGui.QStandardItemModel(self.listSrc)
       for afile in fileNames :
-        print str(afile.endswith("hdalc"))
+        # print str(afile.endswith("hdalc"))
         if os.path.isfile(afile) :
             if afile.endswith("otl") | afile.endswith("hdalc") :
               item = QtGui.QStandardItem(afile)
@@ -200,12 +200,27 @@ class Example(QtGui.QWidget):
       self.listDst.setModel(model)     
 
 
+     
+    def resizeEvent(self,event):
+      # print 'resizing ....', event.size().width(), event.size().height()
+      width1 = (event.size().width()*0.5) - 40.0
+      height1 = event.size().height()-70.0
+      self.listSrc.resize(width1, height1)
+      self.btnCopy.move(width1+10.0, event.size().height()/2)
+      self.listDst.resize(width1, height1)
+      self.listDst.move(width1+ 40.0, 60.0)
 
-        
+      self.labelDst.move(width1+ 40.0,40)
+
+      self.btnDst.move(width1 + 40.0,10.0 )
+
+
+
+
 def main():
     
   app = QtGui.QApplication(sys.argv)
-  ex = Example()
+  ex = HDAManager()
   sys.exit(app.exec_())
 
 

@@ -3,13 +3,14 @@ import time
 import glob
 
 
-path = "F:/HOUDINI_14_playground/render/wood_way/timelapse_V2/*"
-
+path = "F:/HOUDINI_15_playground/render/fur_sea/*"
+# F:\HOUDINI_15_playground\render\fur_sea
 obj = glob.glob(path)
 newNum = len(obj)
 
 while True:
-	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 14.0.444/bin/mplay.exe -p -z 133 -f 1 "+str(newNum-1)+" 1 -r 12 F:/HOUDINI_14_playground/render/wood_way/timelapse_V2/timelapse_V2.*.exr") 
+	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.244.16/bin/mplay.exe -p -z 133 -f 1 "+str(newNum-1)+" 1 -r 25 F:/HOUDINI_15_playground/render/fur_sea/fur_sea_*.exr") 
+	
 
 	# handle = win32gui.FindWindow(None, u"MPlay*")
 	# time.sleep(10)
