@@ -3,13 +3,13 @@ import time
 import glob
 
 
-path = "F:/HOUDINI_15_playground/render/fur_sea/*"
+path = "F:/BLENDER_render/dominos/cam8/*"
 # F:\HOUDINI_15_playground\render\fur_sea
 obj = glob.glob(path)
 newNum = len(obj)
 
 while True:
-	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.244.16/bin/mplay.exe -p -z 133 -f 1 "+str(newNum-1)+" 1 -r 25 F:/HOUDINI_15_playground/render/fur_sea/fur_sea_*.exr") 
+	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe -p -z 100 -f 1 "+str(newNum)+" 1 -r 25 F:/BLENDER_render/dominos/cam8/dominos_cam8_*.png") 
 	
 
 	# handle = win32gui.FindWindow(None, u"MPlay*")
@@ -33,7 +33,7 @@ while True:
 			bBreak = True
 
 		else:
-			n = 1
+			n = 0.5
 			print ("sleep %s minutes" % (n))
 			time.sleep(60*n)
 
