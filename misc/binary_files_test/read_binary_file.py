@@ -1,38 +1,26 @@
-
 import struct
 
 
-dataIn = ''
-
-### HEADER
-numPoints = 500
-numAttr = 3
-header = (numPoints, numAttr)
-headerStruct = struct.Struct('L I')
-dataIn += headerStruct.pack(*header)
-
-#### HEADER end
-
-for i in range(0,100000):
-	values = (i*0.2,i*0.33,i*0555)
-
-	### create struct format
-	s = struct.Struct('d d d')
-
-	### pack data
-	packedData = s.pack(*values)
-
-	dataIn += packedData
-
-
 fileName = 'binary_filetest.g21'
-f = open(fileName,'wb')
 
-f.write(dataIn)
+### read data back
 
-f.close()
+rFile = open(fileName,'rb')
+headerStruct = struct.Struct('L I')
+headerData = rFile.read(8)
+
+header = headerStruct.unpack(headerData)
+numPoints = header[0]
+numAttr = header[1]
 
 
+
+attrStruct = struct.Struct('d d d')
+
+for i in range(numPoints):
+	data = rFile.read(24)
+	print(attrStruct.unpack(data))
+rFile.close()
 
 
 
