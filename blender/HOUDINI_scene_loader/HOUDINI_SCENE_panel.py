@@ -3,14 +3,15 @@ import math
 import os
 import sys
 import xml.dom.minidom as dom
-if os.path.dirname(bpy.data.filepath) not in sys.path:
-    sys.path.append(os.path.join(os.path.dirname(bpy.data.filepath),'python') )    
-import createMeshFromObjFile
-
-
-class SimpleOperator(bpy.types.Operator):
+#if os.path.dirname(bpy.data.filepath) not in sys.path:
+#    sys.path.append(os.path.join(os.path.dirname(bpy.data.filepath),'python') )    
+#import createMeshFromObjFile
+#
+#from bpy.app.handlers import persistent
+### V2
+class HoudiniSceneLoaderOperator(bpy.types.Operator):
     """Tooltip"""
-    bl_idname = "object.simple_operator"
+    bl_idname = "scene.houdini_scene_loader_operator"
     bl_label = "Load Houdini Scene"
     bl_context = "scene"
 
@@ -90,7 +91,7 @@ class SimpleOperator(bpy.types.Operator):
         for obj in objList:
             objName = obj.getAttribute('name')
             shaderName = obj.getAttribute('shaderName')
-            
+            animationType = obj.getAttribute('animationType')
             try : 
                 candidate = bpy.data.objects[objName]
 
@@ -102,20 +103,37 @@ class SimpleOperator(bpy.types.Operator):
                 
             except:
                 pass                
-              
-            fbxFilePath = '%s/geo/%s.fbx' % (projectDir, objName)
-            bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100)
+            
+
             isPointAnim = obj.getAttribute('isPointAnim') == 'True'
-            if isPointAnim :
+
+  
+            ### import fbx
+            if animationType == 'mesh_cache' or not isPointAnim:
+                fbxFilePath = '%s/geo/%s.fbx' % (projectDir, objName)
+                bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100)
+            else:
+                print("load file path current frame")
+                fbxFilePath = '%s/geo/%s_sequence/%s_1.fbx' % (projectDir, objName, objName)
+                bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100)
+            
+            if isPointAnim and animationType == 'mesh_cache':
                 bpy.context.scene.objects[objName].modifiers.new('mesh_cache','MESH_CACHE')
                 mod = bpy.context.scene.objects[objName].modifiers['mesh_cache']
                 mod.cache_format = 'PC2'
+                mod.frame_start = 1.0
                 
                 pc2File = obj.getElementsByTagName('pc2file')[0]
                 pc2FilePath = pc2File.getAttribute('filepath')
                 
                 mod.filepath = pc2FilePath
-            
+            elif isPointAnim and animationType == 'fbx_sequence':
+                print('TODO : load fbx file according to current frame in a frame_change_pre callback function')
+
+                def callbackFunction(self):
+                    print(bpy.context.scene.frame_current)
+
+                bpy.app.handlers.frame_change_pre.append(callbackFunction )
             fbxObj = bpy.context.scene.objects[objName]
             fbxObj.data.use_auto_smooth = False
             try:
@@ -130,7 +148,7 @@ class SimpleOperator(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        self.report({'INFO'}, "Button clicked!")
+        self.report({'INFO'}, "Loading Houdini XML custom Scene File")
         self.initData()
         self.printInfos()
         self.loadXMLData(bpy.context.scene.conf_path)
@@ -145,7 +163,7 @@ class LayoutDemoPanel(bpy.types.Panel):
     bl_context = "scene"
 
 
-        
+#    @persistent
     def draw(self, context):
         layout = self.layout
 
@@ -158,30 +176,22 @@ class LayoutDemoPanel(bpy.types.Panel):
 
 
         row.prop(context.scene, 'conf_path')
+        row.prop(context.scene, 'fbxSequences')
         
         row = layout.row()
-
-
 
 
         # Big render button
 
         row = layout.row()
         row.scale_y = 3.0
-        row.operator("object.simple_operator")
+        row.operator("scene.houdini_scene_loader_operator")
 
-        
-#        # Different sizes in a row
-#        layout.label(text="Different button sizes:")
-#        row = layout.row(align=True)
-#        row.operator("render.render")
-#
-#
-#        row.operator("render.render")
+
 
 
 def register():
-    bpy.utils.register_class(SimpleOperator)   
+    bpy.utils.register_class(HoudiniSceneLoaderOperator)   
     bpy.utils.register_class(LayoutDemoPanel)
 
     bpy.types.Scene.conf_path = bpy.props.StringProperty \
@@ -192,14 +202,24 @@ def register():
       subtype = 'FILE_PATH'
       )    
      
-
+    bpy.types.Scene.fbxSequences = bpy.props.StringProperty \
+      (
+      name = "fbx Sequences",
+      default = "",
+      description = "list of fbx sequences in the xml scene file",
+      subtype = 'FILE_PATH'
+      )  
 
 def unregister():
-    bpy.utils.unregister_class(SimpleOperator)
+    bpy.utils.unregister_class(HoudiniSceneLoaderOperator)
     bpy.utils.unregister_class(LayoutDemoPanel)
     del bpy.types.Scene.conf_path
+    del bpy.types.Scene.fbxSequences
     
 
 
 if __name__ == "__main__":
     register()
+
+
+print('HOUDINI_SCENE_LOADER')
