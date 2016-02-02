@@ -46,10 +46,7 @@ pos_x += 200
 diffuseNode = nodes['Diffuse BSDF']
 diffuseNode.location = pos_x, pos_y
 
-pos_x += -200
-gammaNode = nodes.new('ShaderNodeGamma')
-gammaNode.location = pos_x, pos_y
-gammaNode.inputs['Gamma'].default_value = 1/2.2
+
 
 pos_x += -200
 diffRGBNode = nodes.new('ShaderNodeRGB')
@@ -74,10 +71,8 @@ output = fresnelNode.outputs[0]
 input = glossyNode.inputs[0]
 newMat.node_tree.links.new(input, output)
 
-output = gammaNode.outputs[0]
-input = diffuseNode.inputs[0]
-newMat.node_tree.links.new(input, output)
+
 
 output = diffRGBNode.outputs[0]
-input = gammaNode.inputs[0]
+input = diffuseNode.inputs[0]
 newMat.node_tree.links.new(input, output)
