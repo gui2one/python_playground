@@ -2,22 +2,13 @@ import bpy
 import mathutils
 import math
 
-xAng = bpy.data.objects['Sun'].rotation_euler[0]
-yAng = bpy.data.objects['Sun'].rotation_euler[1]
-zAng = bpy.data.objects['Sun'].rotation_euler[2]
+sunLamp = bpy.data.objects['Sun']
 
-vec = mathutils.Vector((0.0, 0.0, 1.0))
+lampEuler = mathutils.Euler(sunLamp.rotation_euler, sunLamp.rotation_mode)
 
-xMat = mathutils.Matrix( ( ( 1.0, 0.0, 0.0) , (0.0, math.cos(xAng), -math.sin(xAng)), ( 0.0, math.sin(xAng), math.cos(xAng)) ))
-
-yMat = mathutils.Matrix( ( (math.cos(yAng), 0.0, math.sin(yAng)), (0.0, 1.0, 0.0), (-math.sin(yAng), 0.0, math.cos(yAng)) ))
-
-zMat = mathutils.Matrix( ( (math.cos(zAng), -math.sin(zAng), 0.0), (math.sin(zAng), math.cos(zAng),0.0), (0.0, 0.0, 1.0) ))
+sunVec = mathutils.Vector((0.0,0.0,1.0))
+sunVec.rotate(lampEuler)
 
 
-vec = xMat * vec
-vec = yMat * vec
-vec = zMat * vec
 
-bpy.data.worlds['World'].node_tree.nodes['Sky Texture'].sun_direction = vec
-print (zMat)
+bpy.data.worlds['World'].node_tree.nodes['Sky Texture'].sun_direction = sunVec
