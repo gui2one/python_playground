@@ -172,9 +172,9 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             
 
             
-            camObj.location.x = float(posList[0])           
-            camObj.location.y = float(posList[2]) *-1           
-            camObj.location.z = float(posList[1])     
+            # camObj.location.x = float(posList[0])           
+            # camObj.location.y = float(posList[2]) *-1           
+            # camObj.location.z = float(posList[1])     
             
 
 
@@ -327,4 +327,4 @@ if __name__ == "__main__":
     register()
 
 
-print('HOUDINI_SCENE_LOADER')
+print('HOUDINI_SCENE_LOADER_V2')
