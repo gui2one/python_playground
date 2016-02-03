@@ -23,15 +23,122 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
     def printInfos(self):
         print('infos !!!!')
         
-        
+    def createShader(self, shaderName, shaderType):
+        print("create shader", shaderName)
+        C = bpy.context
+        D = bpy.data
+
+        for mat in D.materials:
+            if mat.users == 0:
+                D.materials.remove(mat)
+
+        mats = D.materials        
+
+        if(shaderType == 'diffuse+glossy'):
+
+            newMat = D.materials.new(name=shaderName)
+            newMat.use_nodes = True
+
+            pos_x = 1200
+            pos_y = 300
+            nodes = newMat.node_tree.nodes
+
+            outputNode = nodes['Material Output']
+            outputNode.location = pos_x, pos_y
+
+            pos_x += -200
+
+            addNode = nodes.new('ShaderNodeAddShader')
+            addNode.name = 'Mix Shader'
+            addNode.location = pos_x, pos_y
+
+
+
+            pos_x += -300
+            pos_y += 150
+            glossyNode = nodes.new('ShaderNodeBsdfGlossy')
+            glossyNode.name = 'Glossy BSDF'
+            glossyNode.location = pos_x, pos_y
+            glossyNode.inputs['Roughness'].default_value = 0.05
+
+            pos_x += -200
+            fresnelNode = nodes.new('ShaderNodeFresnel')
+            fresnelNode.location = pos_x, pos_y
+
+
+
+            pos_y += -300
+            pos_x += 200
+            diffuseNode = nodes['Diffuse BSDF']
+            diffuseNode.location = pos_x, pos_y
+
+
+
+            pos_x += -200
+            diffRGBNode = nodes.new('ShaderNodeRGB')
+            diffRGBNode.location = pos_x, pos_y
+
+            output = addNode.outputs[0]
+            input = outputNode.inputs['Surface']
+            newMat.node_tree.links.new(input, output)
+
+            output = glossyNode.outputs[0]
+            input = addNode.inputs[0]
+            newMat.node_tree.links.new(input, output)
+
+
+
+            output = diffuseNode.outputs[0]
+            input = addNode.inputs[1]
+            newMat.node_tree.links.new(input, output)
+
+
+            output = fresnelNode.outputs[0]
+            input = glossyNode.inputs[0]
+            newMat.node_tree.links.new(input, output)
+
+
+
+            output = diffRGBNode.outputs[0]
+            input = diffuseNode.inputs[0]
+            newMat.node_tree.links.new(input, output)        
+
+
+        if(shaderType == 'emission'):
+            newMat = D.materials.new(name=shaderName)
+            newMat.use_nodes = True
+
+            pos_x = 1200
+            pos_y = 300
+            nodes = newMat.node_tree.nodes
+
+            outputNode = nodes['Material Output']
+            outputNode.location = pos_x, pos_y
+
+            pos_x += -200
+
+            emissionNode = nodes.new('ShaderNodeEmission')
+
+            emissionNode.location = pos_x, pos_y
+            emissionNode.inputs['Strength'].default_value = 10.0
+
+            output = emissionNode.outputs[0]
+            input = outputNode.inputs['Surface']
+            newMat.node_tree.links.new(input, output)            
+
+
+
+
     def loadXMLData(self, xmlFile):
         print('loadXMLData function -------')
         xmlData = dom.parse(xmlFile)
         camList = xmlData.firstChild.getElementsByTagName('camera')
         objList = xmlData.firstChild.getElementsByTagName('object')
         
+
+        # imports cams
         for cam in camList:
-#            print ("\n--------------------------")
+
             camName = cam.getAttribute('name')
             
             try : 
@@ -56,42 +163,40 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
             confPath = bpy.context.scene.conf_path
             projectDir = os.path.split(confPath)[0]
-#            camObj = bpy.data.objects.new(camName,camCam)
+
             fbxFilePath = '%s/geo/%s.fbx' % (projectDir,camName)
-            bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100)          
+            bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100, anim_offset=0)          
             
             camObj =  bpy.context.scene.objects[camName] 
             camCam = bpy.data.cameras[camName]
-            #bpy.context.scene.objects.link(camObj)
             
 
-#            createMeshFromObjFile.createMeshFromObjFile('F:/BLENDER_playground/houdini_hips/geo/geo1.obj')  
-            
-#            camObj.rotation_euler.x = (float(rotList[0])+90)*(pi/180.0)
-            camObj.rotation_euler.x = math.radians(float(rotList[0])+90)
-            camObj.rotation_euler.y = math.radians(float(rotList[2]))           
-            camObj.rotation_euler.z = math.radians(float(rotList[1]))    
             
             camObj.location.x = float(posList[0])           
             camObj.location.y = float(posList[2]) *-1           
             camObj.location.z = float(posList[1])     
             
-#            fbxObj.data.use_auto_smooth = False       
+
 
             camObj.data.lens = focalLength
             camObj.data.sensor_width = aperture
             camObj.data.dof_distance = focusDistance            
             
             
-#            print ("--------------------------\n")
+
 
         
         
         #### import  objects
         for obj in objList:
+
+
             objName = obj.getAttribute('name')
             shaderName = obj.getAttribute('shaderName')
             animationType = obj.getAttribute('animationType')
+            shaderType = obj.getAttribute('shaderType')            
+
+            self.createShader(objName, shaderType)
             try : 
                 candidate = bpy.data.objects[objName]
 
