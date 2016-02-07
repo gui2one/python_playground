@@ -1,7 +1,7 @@
 # Code Example: Display a window in PyQt4
 # Python 2.6 with PyQt 4
 import sys
-from PyQt4 import QtGui
+from PySide import QtGui
 class MainFrame(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)

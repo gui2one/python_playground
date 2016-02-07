@@ -3,10 +3,14 @@ import sys
 #from sys import stdout
 
 
-DO_RENDER = True
+
 D = bpy.data
 C = bpy.context
-sceneFilePath = sys.argv[-1]
+sceneFilePath = sys.argv[-2] # start from the end: these are 'trailing' parameters to the command blender.exe and ITS parameters
+DO_RENDER = int(sys.argv[-1])
+
+
+
 bpy.context.scene.conf_path = sceneFilePath
 
 bpy.ops.object.select_all(action='SELECT')
@@ -22,10 +26,11 @@ C.scene.render.engine = 'CYCLES'
 
 D.scenes['Scene'].cycles.device = 'GPU'
 D.scenes['Scene'].cycles.use_square_samples = True
-D.scenes['Scene'].cycles.samples = 20
+D.scenes['Scene'].cycles.samples = 28
+D.scenes['Scene'].cycles.film_transparent = True
 
 
-D.scenes['Scene'].render.resolution_percentage = 50
+D.scenes['Scene'].render.resolution_percentage = 75
 
 D.scenes['Scene'].render.tile_x = 128
 D.scenes['Scene'].render.tile_y = 128
@@ -42,11 +47,11 @@ bpy.ops.object.houdini_scene_loader_operator()
 ### don't need it, fps is probably set by fbx importer
 # C.scene.render.fps = 25.0
 fStart = 1
-fEnd = 150
+fEnd = 229
 if DO_RENDER:
 	for i in range(fStart,fEnd+1):
 		C.scene.frame_current = i
-		C.scene.render.filepath = "F:/BLENDER_playground/test_%s.png" % i
+		C.scene.render.filepath = "F:/BLENDER_playground/render/world/world_%s.png" % i
 		D.scenes['Scene'].camera = bpy.data.objects['export_cam1']
 
 		### render
@@ -55,7 +60,15 @@ if DO_RENDER:
 
 		# print("rendered frame %s \r" % (i))
 		#stdout.write("rendered frame %d\n" % i)
+
+	# remove meshes with no users
+	for mesh in D.meshes:
+		if mesh.users == 0:
+			D.meshes.remove(mesh)
+
 		print("rendered frame %s" % i)
+
+
 
 
 

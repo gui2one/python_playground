@@ -30,7 +30,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         C = bpy.context
 
 
-        filepath = "F:/BLENDER_playground/shaders/shaders_01.blend"
+        filepath = "F:/PYTHON_playground/blender/HOUDINI_scene_loader/shaders/shaders_01.blend"
         # shaderName = "diffuseGlossyCustomShader"
         shaderName = ["diffuseGlossyCustomShader","emissionCustomShader"]
         # append, set to true to keep the link to the original file
@@ -484,6 +484,15 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 
             fbxObj = bpy.context.scene.objects[objName]
             fbxObj.data.use_auto_smooth = False
+
+
+
+            fbxObj.cycles_visibility.camera = int(cyclesParamsDict['rayVisCamera'] == 'on')
+            fbxObj.cycles_visibility.diffuse = int(cyclesParamsDict['rayVisDiffuse'] == 'on')
+            fbxObj.cycles_visibility.glossy = int(cyclesParamsDict['rayVisGlossy'] == 'on')
+            fbxObj.cycles_visibility.transmission = int(cyclesParamsDict['rayVisTransmission'] == 'on')
+            fbxObj.cycles_visibility.scatter = int(cyclesParamsDict['rayVisVolumeScatter'] == 'on')
+            fbxObj.cycles_visibility.shadow = int(cyclesParamsDict['rayVisShadow'] == 'on')
             try:
                 if len(fbxObj.data.materials) != 0:
                     fbxObj.data.materials[0] = bpy.data.materials[shaderName]
@@ -501,6 +510,12 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         #### define callback method
         @persistent
         def callbackFunction(self):
+
+            # remove meshes with no users
+            for mesh in bpy.data.meshes:
+                if mesh.users == 0:
+                    bpy.data.meshes.remove(mesh)            
+
             frame_current  = bpy.context.scene.frame_current
 
             print (len(objSequences))

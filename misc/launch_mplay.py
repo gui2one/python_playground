@@ -3,13 +3,13 @@ import time
 import glob
 
 
-path = "F:/BLENDER_playground/*.png"
+path = "F:/BLENDER_playground/render/world/*.png"
 # F:\HOUDINI_15_playground\render\fur_sea
 obj = glob.glob(path)
 newNum = len(obj)
 
 while True:
-	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe -p -z 100 -f 1 "+str(newNum)+" 1 -r 25 F:/BLENDER_playground/*.png") 
+	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe -minimal -T -p -z 100 -f 1 "+str(newNum)+" 1 -r 25 F:/BLENDER_playground/render/world/*.png") 
 	
 
 	# handle = win32gui.FindWindow(None, u"MPlay*")
