@@ -5,38 +5,65 @@ print " read BPHYS file"
 
 
 
-f = open('F:/BLENDER_playground/blendcache_cache_test/cache_000000_00.bphys', 'rb')
+dataFile = open('F:/BLENDER_playground/blendcache_load_cache/cache_000003_08.bphys', 'rb')
 
 
-unpacked = struct.unpack('cccccccc',f.read(8)) ### B,P,H,Y,S,I,C,S
+unpacked = struct.unpack('cccccccc',dataFile.read(8)) ### B,P,H,Y,S,I,C,S
 
-dataType = struct.unpack('I',f.read(4))[0]
+dataType = struct.unpack('III',dataFile.read(12))
 
 print(unpacked, dataType)
 
+inc = 0
 while True:
-	pIndex = struct.unpack('I',f.read(4))
-	print "index -->", pIndex	
+
+	# print inc, "--->",(struct.unpack('8I', dataFile.read(32)))
+	pIndex = struct.unpack('I',dataFile.read(4))
+	print inc," index -->", pIndex	
 	if pIndex == '':
 		break	
 
-	pLocation = struct.unpack('fff',f.read(4*3))
-	pVelocity = struct.unpack('fff',f.read(4*3))
-	pRotation = struct.unpack('ffff',f.read(4*4))
-	pAvelocity = struct.unpack('fff',f.read(4*3))
-	pSize = struct.unpack('f',f.read(4))
-	pTimes = struct.unpack('fff',f.read(4*3))
-	pBoids = struct.unpack('ffffhh',f.read(4*5))
+	pLocation = struct.unpack('fff',dataFile.read(4*3))
+	# print "pLocation -->", pLocation
+
+	pVelocity = struct.unpack('fff',dataFile.read(4*3))
+	# print "pVelocity -->", pVelocity
+
+	pRotation = struct.unpack('ffff',dataFile.read(4*4))
+	# print "pRotation -->", pRotation
+
+	pAvelocity = struct.unpack('fff',dataFile.read(4*3))
+	# print "pAvelocity -->", pAvelocity
+
+	pSize = struct.unpack('f',dataFile.read(struct.calcsize('f')))
+	# print "pSize -->", pSize
+
+	pTimes = struct.unpack('fff',dataFile.read(4*3))
+	# print "pTimes -->", pTimes
+
+	# pBoids = struct.unpack('ffffhh',dataFile.read(4*5))
+	dataFile.read(40)
+
+	inc += 1
+	
 
 
+'''
+times
+pSize
+Avelocity
+pRotation
+velocity
+location
+'''
 
 
-	print "pLocation -->", pLocation
-	print "pVelocity -->", pVelocity
-	print "pRotation -->", pRotation
-	print "pAvelocity -->", pAvelocity
-	print "pSize -->", pSize
-	print "pTimes -->", pTimes
+	
+	
+	
+	
+	
+	
 
 
 	# print struct.unpack('f', f.read(4))
