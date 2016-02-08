@@ -32,7 +32,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
         filepath = "F:/PYTHON_playground/blender/HOUDINI_scene_loader/shaders/shaders_01.blend"
         # shaderName = "diffuseGlossyCustomShader"
-        shaderName = ["diffuseGlossyCustomShader","emissionCustomShader"]
+        shaderName = ["diffuseGlossyCustomShader","diffuseGlossyTranslucentCustomShader","emissionCustomShader"]
         # append, set to true to keep the link to the original file
         link = False 
 
@@ -51,154 +51,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
 
 
-    def createShader(self, shaderName, shaderType, cyclesParamsDict):
-        print("create shader", shaderName)
-        C = bpy.context
-        D = bpy.data
-        # print("!!!!!!!!!!!!!!", cyclesParamsDict)
-
-        if cyclesParamsDict['use_point_color'] == 'on' :
-            usePointColor = True
-        else:
-            usePointColor = False
-
-        for mat in D.materials:
-            if mat.users == 0:
-                D.materials.remove(mat)
-
-        mats = D.materials        
-
-        if(shaderType == 'diffuse+glossy'):
-
-            newMat = D.materials.new(name=shaderName)
-            newMat.use_nodes = True
-
-            pos_x = 1200
-            pos_y = 300
-            nodes = newMat.node_tree.nodes
-
-            outputNode = nodes['Material Output']
-            outputNode.location = pos_x, pos_y
-
-            pos_x += -200
-
-            addNode = nodes.new('ShaderNodeAddShader')
-            addNode.name = 'Mix Shader'
-            addNode.location = pos_x, pos_y
-
-
-
-            pos_x += -300
-            pos_y += 150
-            glossyNode = nodes.new('ShaderNodeBsdfGlossy')
-            glossyNode.name = 'Glossy BSDF'
-            glossyNode.location = pos_x, pos_y
-            glossyNode.inputs['Roughness'].default_value = 0.05
-
-            pos_x += -200
-            fresnelNode = nodes.new('ShaderNodeFresnel')
-            fresnelNode.location = pos_x, pos_y
-
-
-
-            pos_y += -300
-            pos_x += 200
-            diffuseNode = nodes['Diffuse BSDF']
-            diffuseNode.location = pos_x, pos_y
-
-
-
-
-
-            output = addNode.outputs[0]
-            input = outputNode.inputs['Surface']
-            newMat.node_tree.links.new(input, output)
-
-            output = glossyNode.outputs[0]
-            input = addNode.inputs[0]
-            newMat.node_tree.links.new(input, output)
-
-
-
-            output = diffuseNode.outputs[0]
-            input = addNode.inputs[1]
-            newMat.node_tree.links.new(input, output)
-
-
-            output = fresnelNode.outputs[0]
-            input = glossyNode.inputs[0]
-            newMat.node_tree.links.new(input, output)
-
-
-
-
-
-            if usePointColor:
-
-                pos_x += -200
-                mixRGBNode = nodes.new('ShaderNodeMixRGB')
-                mixRGBNode.location = pos_x, pos_y  
-                mixRGBNode.blend_type = 'MULTIPLY' 
-                mixRGBNode.inputs[0].default_value = 1.0    
-
-                pos_x += -200       
-                pos_y += 150
-                diffRGBNode = nodes.new('ShaderNodeRGB')
-                diffRGBNode.location = pos_x, pos_y           
-
-
-                
-                pos_y += -300
-                attributeNode = nodes.new('ShaderNodeAttribute')
-                attributeNode.location = pos_x, pos_y  
-                attributeNode.attribute_name = 'Cd'
-
-                output = mixRGBNode.outputs[0]
-                input = diffuseNode.inputs[0]
-                newMat.node_tree.links.new(input, output)                         
-
-
-                output = diffRGBNode.outputs[0]
-                input = mixRGBNode.inputs['Color1']
-                newMat.node_tree.links.new(input, output)
-
-                output = attributeNode.outputs[0]
-                input = mixRGBNode.inputs['Color2']
-                newMat.node_tree.links.new(input, output)
-
-
-            else :
-                pos_x += -200       
-                diffRGBNode = nodes.new('ShaderNodeRGB')
-                diffRGBNode.location = pos_x, pos_y       
-
-                output = diffRGBNode.outputs[0]
-                input = diffuseNode.inputs[0]
-                newMat.node_tree.links.new(input, output)                                
-
-
-
-        if(shaderType == 'emission'):
-            newMat = D.materials.new(name=shaderName)
-            newMat.use_nodes = True
-
-            pos_x = 1200
-            pos_y = 300
-            nodes = newMat.node_tree.nodes
-
-            outputNode = nodes['Material Output']
-            outputNode.location = pos_x, pos_y
-
-            pos_x += -200
-
-            emissionNode = nodes.new('ShaderNodeEmission')
-
-            emissionNode.location = pos_x, pos_y
-            emissionNode.inputs['Strength'].default_value = 10.0
-
-            output = emissionNode.outputs[0]
-            input = outputNode.inputs['Surface']
-            newMat.node_tree.links.new(input, output)            
+   
 
 
     def createShaders_V2(self, objName , shaderType, cyclesParamsDict):
@@ -293,39 +146,84 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             output = groupNode.outputs[1] ## displacement output
             input = outputNode.inputs[2]  ## displacement input
             mat.node_tree.links.new(input, output)    
-        # #for area in bpy.context.screen.areas:
-        # #    if area.type == "NODE_EDITOR":
-        # #        override = {'screen': bpy.context.screen, 'area': area}
-
-        # for area in bpy.context.screen.areas:
-        #     if area.type == 'VIEW_3D':
-        #         area.type = 'NODE_EDITOR'
-                
-        #         override = {'screen': bpy.context.screen,'window': bpy.context.window, 'area': area}
-        #         nodeEditor = area
-                
-        # print (nodeEditor)
 
 
+        elif shaderType == 'diffuse+glossy+translucent':
 
-        # bpy.ops.node.add_node(override, settings=[{"name":"node_tree", "value":"bpy.data.node_groups['"+group_name+"']"}], type="ShaderNodeGroup")
+
+            shaderName = "diffuseGlossyTranslucentCustomShader"
+            groupNode = nodes.new('ShaderNodeGroup')
+            groupNode.node_tree = bpy.data.node_groups[shaderName]
+
+            diffTexNode = nodes.new('ShaderNodeTexImage')
+            diffTexNode.name = 'Diffuse Texture'
+            diffTexNode.label = 'Diffuse Texture'
+            if cyclesParamsDict['use_diffuse_texture'] == 'on':
+
+                img = D.images.load(cyclesParamsDict['diffuse_texture'])
+                groupNode.inputs['diffTextureMult'].default_value = 1.0
+                diffTexNode.image = img
+            else:
+                groupNode.inputs['diffTextureMult'].default_value = 0.0
+
+            translucentTexNode = nodes.new('ShaderNodeTexImage')
+            translucentTexNode.name = 'Diffuse Texture'
+            translucentTexNode.label = 'Diffuse Texture'
+            if cyclesParamsDict['use_diffuse_texture'] == 'on':
+
+                img = D.images.load(cyclesParamsDict['diffuse_texture'])
+                groupNode.inputs['diffTextureMult'].default_value = 1.0
+                translucentTexNode.image = img
+            else:
+                groupNode.inputs['diffTextureMult'].default_value = 0.0            
+
+            groupNode.inputs["roughness"].default_value = float(cyclesParamsDict['roughness'])
+            groupNode.inputs["diffuseColor"].default_value = (float(cyclesParamsDict['diffuseColorr']),float(cyclesParamsDict['diffuseColorg']), float(cyclesParamsDict['diffuseColorb']),1.0)
+            groupNode.inputs["glossyColor"].default_value = (float(cyclesParamsDict['glossyColorr']),float(cyclesParamsDict['glossyColorg']), float(cyclesParamsDict['glossyColorb']),1.0)
+            groupNode.inputs["translucentColor"].default_value = (float(cyclesParamsDict['translucentColorr']),float(cyclesParamsDict['translucentColorg']), float(cyclesParamsDict['translucentColorb']),1.0)
 
 
-        # img = D.images.load('F:/BLENDER_playground/test_15.png')
 
-        # bpy.ops.node.add_node(override,settings=[{"name":"image", "value":"bpy.data.images['test_15.png']"}, 
-        #                                         {"name":"name", "value":"'diffuseTexture'"},
-        #                                         {"name":"label", "value":"'diffuseTexture'"}],
-                                                
-        #                                         type="ShaderNodeTexImage")
+            output = diffTexNode.outputs[0]
+            input = groupNode.inputs['diffTexture']
+            mat.node_tree.links.new(input, output)           
 
-        # mat = D.materials['Material']
+            output = translucentTexNode.outputs[0]
+            input = groupNode.inputs['translucentTexture']
+            mat.node_tree.links.new(input, output)                     
 
-        # output = mat.node_tree.nodes['diffuseTexture'].outputs[0]
+            if cyclesParamsDict['use_point_color'] == 'on':
+                groupNode.inputs['vertexColorMult'].default_value = 1.0
+            else:
+                groupNode.inputs['vertexColorMult'].default_value = 0.0
 
-        # input = mat.node_tree.nodes['Group'].inputs['diffuseColor']
-        # mat.node_tree.links.new(input, output)
-        # print(D.materials['Material'].node_tree.nodes['Group'])
+       
+
+
+            dispTexNode = nodes.new('ShaderNodeTexImage')
+            dispTexNode.name = 'Displacement Texture'
+            dispTexNode.label = 'Displacement Texture'
+            if cyclesParamsDict['use_displacement'] == 'on':
+
+                img = D.images.load(cyclesParamsDict['displacement_texture'])
+                groupNode.inputs['displacementAmount'].default_value = float(cyclesParamsDict['displacementAmount'])
+                dispTexNode.image = img
+            else:
+                groupNode.inputs['displacementAmount'].default_value = 0.0
+
+            output = dispTexNode.outputs[0]
+            input = groupNode.inputs['displacementTexture']
+            mat.node_tree.links.new(input, output)                    
+
+            outputNode = nodes['Material Output']
+            output = groupNode.outputs[0]
+            input = outputNode.inputs[0]
+            mat.node_tree.links.new(input, output)    
+
+            outputNode = nodes['Material Output']
+            output = groupNode.outputs[1] ## displacement output
+            input = outputNode.inputs[2]  ## displacement input
+            mat.node_tree.links.new(input, output)    
 
         
 
@@ -501,7 +399,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             except:
                 pass
 
-            # self.createShader(objName, shaderType, cyclesParamsDict)
+            
             self.createShaders_V2(objName, shaderType, cyclesParamsDict)   
       
 

@@ -12,7 +12,7 @@ import time
 
 '''
     #SUB PROCESS Render.exe
-proc = subprocess.Popen('blender --python F:/PYTHON_playground/blender/HOUDINI_scene_loader/launchBlender.py -- F:/HOUDINI_15_playground/World_scene.xml 0',
+proc = subprocess.Popen('blender --python F:/PYTHON_playground/blender/HOUDINI_scene_loader/launchBlender.py -- F:/HOUDINI_15_playground/tree.xml 0',
                         shell=True,
                         stdout=subprocess.PIPE
                         )
