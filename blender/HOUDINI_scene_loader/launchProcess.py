@@ -2,7 +2,9 @@
 import subprocess
 import time 
 
- 
+import os
+
+PYTHON_PLAYGROUND = os.getenv('PYTHON_PLAYGROUND') 
 # import sys
 
 
@@ -12,7 +14,7 @@ import time
 
 '''
     #SUB PROCESS Render.exe
-proc = subprocess.Popen('blender --python F:/PYTHON_playground/blender/HOUDINI_scene_loader/launchBlender.py -- F:/HOUDINI_15_playground/tree.xml 0',
+proc = subprocess.Popen('blender --python '+PYTHON_PLAYGROUND+'/blender/HOUDINI_scene_loader/launchBlender.py -- Z:/HOUDINI_15_playground/HoudiniToBlenderProject.xml 0',
                         shell=True,
                         stdout=subprocess.PIPE
                         )
@@ -21,14 +23,14 @@ proc = subprocess.Popen('blender --python F:/PYTHON_playground/blender/HOUDINI_s
 
 
 
-inc = 0
-while True:
-    inc += 1
-    output = proc.stdout.readline()
-    # time.sleep(0.01)
-    # if ("frame " in output) or ("::::" in output) :
+# inc = 0
+# while True:
+#     inc += 1
+#     output = proc.stdout.readline()
+#     # time.sleep(0.01)
+#     # if ("frame " in output) or ("::::" in output) :
 
-    print ('inc %s :  %s ' % (inc, output) )
+#     print ('inc %s :  %s ' % (inc, output) )
 
         
 

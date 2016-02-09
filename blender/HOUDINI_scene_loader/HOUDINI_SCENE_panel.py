@@ -29,8 +29,11 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         D = bpy.data
         C = bpy.context
 
-
-        filepath = "F:/PYTHON_playground/blender/HOUDINI_scene_loader/shaders/shaders_01.blend"
+        PYTHON_PLAYGROUND = os.getenv('PYTHON_PLAYGROUND')
+        if not PYTHON_PLAYGROUND:
+            print('ERROR : PYTHON_PLAYGROUND env variables NOT set')
+            sys.exit(0)
+        filepath = PYTHON_PLAYGROUND+"/blender/HOUDINI_scene_loader/shaders/shaders_01.blend"
         # shaderName = "diffuseGlossyCustomShader"
         shaderName = ["diffuseGlossyCustomShader","diffuseGlossyTranslucentCustomShader","emissionCustomShader"]
         # append, set to true to keep the link to the original file
@@ -264,7 +267,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             projectDir = os.path.split(confPath)[0]
 
             fbxFilePath = '%s/geo/%s.fbx' % (projectDir,camName)
-            bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100, anim_offset=1)          
+            bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100)          
             
             camObj =  bpy.context.scene.objects[camName] 
             camCam = bpy.data.cameras[camName]
@@ -391,6 +394,8 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             fbxObj.cycles_visibility.transmission = int(cyclesParamsDict['rayVisTransmission'] == 'on')
             fbxObj.cycles_visibility.scatter = int(cyclesParamsDict['rayVisVolumeScatter'] == 'on')
             fbxObj.cycles_visibility.shadow = int(cyclesParamsDict['rayVisShadow'] == 'on')
+
+            self.createShaders_V2(objName, shaderType, cyclesParamsDict)   
             try:
                 if len(fbxObj.data.materials) != 0:
                     fbxObj.data.materials[0] = bpy.data.materials[shaderName]
@@ -400,7 +405,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 pass
 
             
-            self.createShaders_V2(objName, shaderType, cyclesParamsDict)   
+            
       
 
 
