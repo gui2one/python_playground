@@ -14,7 +14,7 @@ PYTHON_PLAYGROUND = os.getenv('PYTHON_PLAYGROUND')
 
 '''
     #SUB PROCESS Render.exe
-proc = subprocess.Popen('blender --python '+PYTHON_PLAYGROUND+'/blender/HOUDINI_scene_loader/launchBlender.py -- F:/HOUDINI_15_playground/tree.xml 1',
+proc = subprocess.Popen('blender --python '+PYTHON_PLAYGROUND+'/blender/HOUDINI_scene_loader/launchBlender.py -- Z:/HOUDINI_15_playground/HoudiniToBlenderProject.xml 0',
                         shell=True,
                         stdout=subprocess.PIPE
                         )
