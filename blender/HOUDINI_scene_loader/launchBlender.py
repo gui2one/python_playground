@@ -26,32 +26,32 @@ C.scene.render.engine = 'CYCLES'
 
 D.scenes['Scene'].cycles.device = 'GPU'
 D.scenes['Scene'].cycles.use_square_samples = True
-D.scenes['Scene'].cycles.samples = 28
+D.scenes['Scene'].cycles.samples = 32
 D.scenes['Scene'].cycles.film_transparent = True
 
 
-D.scenes['Scene'].render.resolution_percentage = 75
+D.scenes['Scene'].render.resolution_percentage = 100
 
-D.scenes['Scene'].render.tile_x = 128
-D.scenes['Scene'].render.tile_y = 128
+D.scenes['Scene'].render.tile_x = 256
+D.scenes['Scene'].render.tile_y = 256
 
 D.scenes['Scene'].render.use_motion_blur = True
 
 ### set background Shader
 D.worlds['World'].use_nodes = True
-D.worlds['World'].node_tree.nodes['Background'].inputs[0].default_value = (0.0,0.0,0.0,1.0)
+D.worlds['World'].node_tree.nodes['Background'].inputs[0].default_value = (0.05,0.05,0.05,1.0)
 
 
 ### HOUDINI scene loader
 bpy.ops.object.houdini_scene_loader_operator()
 ### don't need it, fps is probably set by fbx importer
 # C.scene.render.fps = 25.0
-fStart = 1
-fEnd = 229
+fStart = 20
+fEnd = 100
 if DO_RENDER:
 	for i in range(fStart,fEnd+1):
 		C.scene.frame_current = i
-		C.scene.render.filepath = "F:/BLENDER_playground/render/world/world_%s.png" % i
+		C.scene.render.filepath = "F:/BLENDER_playground/trees/tree_01/tree_01_%s.png" % i
 		D.scenes['Scene'].camera = bpy.data.objects['export_cam1']
 
 		### render

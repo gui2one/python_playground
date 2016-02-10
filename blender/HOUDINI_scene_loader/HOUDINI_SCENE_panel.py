@@ -4,6 +4,9 @@ import os
 import sys
 import xml.dom.minidom as dom
 from bpy.app.handlers import persistent
+import math
+
+
 #if os.path.dirname(bpy.data.filepath) not in sys.path:
 #    sys.path.append(os.path.join(os.path.dirname(bpy.data.filepath),'python') )    
 #import createMeshFromObjFile
@@ -260,6 +263,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             aperture = float(cam.getAttribute('aperture'))
             focusDistance = float(cam.getAttribute('focus_distance'))
             fstop = float(cam.getAttribute('fstop'))
+            isCamAnimated = cam.getAttribute('isAnimated') == 'True'
             
 
 
@@ -267,16 +271,69 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             projectDir = os.path.split(confPath)[0]
 
             fbxFilePath = '%s/geo/%s.fbx' % (projectDir,camName)
-            bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100)          
+
+            ### import FBX camera
+            # bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100) 
+            # camObj =  bpy.context.scene.objects[camName] 
+            # camCam = bpy.data.cameras[camName]                     
             
-            camObj =  bpy.context.scene.objects[camName] 
-            camCam = bpy.data.cameras[camName]
+            ### create camera ( as opposed to import FBX camera )
+            camCam = bpy.data.cameras.new(camName)
+            camObj = bpy.data.objects.new(camName, camCam)
+            bpy.context.scene.objects.link(camObj)
+
+
             
             camCam.cycles.aperture_type = "FSTOP"
             camCam.cycles.aperture_fstop = fstop
             
        
 
+
+
+            if isCamAnimated:
+                transformAnimation = cam.getElementsByTagName('transformAnimation')[0]
+                frames = transformAnimation.getElementsByTagName('frame')
+                for frame in frames:
+                    frameNumber= int(frame.getAttribute('frameNumber'))
+                    translation = frame.getAttribute('translation').strip('[,]').split(',')
+                    rotation = frame.getAttribute('rotation').strip('[,]').split(',')
+
+                    
+                    # camObj.rotation_euler[2] = math.radians(float(rotation[1])*-1)
+                    # camObj.rotation_euler[1] = math.radians(float(rotation[2]))
+                    # camObj.rotation_euler[0] = math.radians(float(rotation[0])+90.0)
+                    # camObj.keyframe_insert(data_path='rotation_euler', frame=frameNumber)
+                    camObj.rotation_mode = 'QUATERNION'
+                    camObj.rotation_quaternion[0] = float(rotation[3]) ##W
+                    camObj.rotation_quaternion[1] = float(rotation[0]) ##X
+                    camObj.rotation_quaternion[2] = float(rotation[1]) ##Y
+                    camObj.rotation_quaternion[3] = float(rotation[2]) ##Z
+                    camObj.keyframe_insert(data_path='rotation_quaternion', frame=frameNumber)
+
+                    camObj.location[0] = float(translation[0])
+                    camObj.location[1] = float(translation[1])
+                    camObj.location[2] = float(translation[2])
+
+                    camObj.keyframe_insert(data_path='location', frame=frameNumber)
+                    # print(float(translation[0]))
+                    # print(float(rotation[0]))
+
+            else:
+                transforms = cam.getElementsByTagName('transforms')[0]
+                translation = transforms.getAttribute('translation').strip('[,]').split(',')
+                rotation = transforms.getAttribute('rotation').strip('[,]').split(',')
+
+                camObj.rotation_mode = 'QUATERNION' 
+                camObj.rotation_quaternion[0] = float(rotation[3]) ##W
+                camObj.rotation_quaternion[1] = float(rotation[0]) ##X
+                camObj.rotation_quaternion[2] = float(rotation[1]) ##Y
+                camObj.rotation_quaternion[3] = float(rotation[2]) ##Z       
+
+                camObj.location[0] = float(translation[0])
+                camObj.location[1] = float(translation[1])
+                camObj.location[2] = float(translation[2])
+                
 
             camObj.data.lens = focalLength
             camObj.data.sensor_width = aperture
