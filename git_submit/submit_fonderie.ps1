@@ -2,7 +2,7 @@ Copy-Item 'C:\Program Files\Blender Foundation\Blender\2.76\scripts\startup\HOUD
 
 Cd F:
 Cd PYTHON_playground
-git add -A
+git add -A .
 git commit -m 'commit script Fonderie'
 
 git push
