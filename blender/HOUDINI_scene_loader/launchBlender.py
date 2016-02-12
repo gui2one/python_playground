@@ -81,7 +81,7 @@ fEnd = int(goodParmsDict['fEnd'])
 if DO_RENDER:
 	for i in range(fStart,fEnd+1):
 		C.scene.frame_current = i
-		C.scene.render.filepath = "F:/BLENDER_playground/render/lampe_colonne/lampe_colonne_%s.png" % i
+		C.scene.render.filepath = "F:/BLENDER_playground/render/trees/01/tree_anim_%s.png" % i
 		D.scenes['Scene'].camera = bpy.data.objects['export_cam1']
 
 		### render
