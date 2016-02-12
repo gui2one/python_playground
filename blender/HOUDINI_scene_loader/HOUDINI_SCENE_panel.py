@@ -7,12 +7,7 @@ from bpy.app.handlers import persistent
 import math
 
 
-#if os.path.dirname(bpy.data.filepath) not in sys.path:
-#    sys.path.append(os.path.join(os.path.dirname(bpy.data.filepath),'python') )    
-#import createMeshFromObjFile
-#
-#from bpy.app.handlers import persistent
-### V2
+
 class HoudiniSceneLoaderOperator(bpy.types.Operator):
     """Tooltip"""
     bl_idname = "object.houdini_scene_loader_operator"
@@ -38,7 +33,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             sys.exit(0)
         filepath = PYTHON_PLAYGROUND+"/blender/HOUDINI_scene_loader/shaders/shaders_01.blend"
         # shaderName = "diffuseGlossyCustomShader"
-        shaderName = ["diffuseGlossyCustomShader","diffuseGlossyTranslucentCustomShader","emissionCustomShader"]
+        shaderName = ["diffuseGlossyCustomShader","diffuseGlossyTranslucentCustomShader","diffuseAnisotropicCustomShader","emissionCustomShader"]
         # append, set to true to keep the link to the original file
         link = False 
 
@@ -71,7 +66,11 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         mat.use_nodes = True
 
         nodes = mat.node_tree.nodes
-        D.objects[objName].data.materials.append(mat)
+        if len(D.objects[objName].data.materials) == 0:
+            D.objects[objName].data.materials.append(mat)
+        else :
+            D.objects[objName].data.materials[0] = mat
+        # D.objects[objName].data.materials.append(mat)
 
         if shaderType == 'emission':
 
@@ -84,7 +83,9 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             else:
                 groupNode.inputs['vertexColorMult'].default_value = 0.0
 
-            groupNode.inputs['emissionStrength'].default_value = float(cyclesParamsDict['emissionStrength'])
+            ## set emission color to diffuse color
+            groupNode.inputs['emissionColor'].default_value = (float(cyclesParamsDict['diffuse_colorr']),float(cyclesParamsDict['diffuse_colorg']), float(cyclesParamsDict['diffuse_colorb']),1.0)
+            groupNode.inputs['emissionStrength'].default_value = float(cyclesParamsDict['emission_strength'])
             outputNode = nodes['Material Output']
             output = groupNode.outputs[0]
             input = outputNode.inputs[0]
@@ -111,10 +112,9 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             
 
             groupNode.inputs["roughness"].default_value = float(cyclesParamsDict['roughness'])
-            groupNode.inputs["diffuseColor"].default_value = (float(cyclesParamsDict['diffuseColorr']),float(cyclesParamsDict['diffuseColorg']), float(cyclesParamsDict['diffuseColorb']),1.0)
-            groupNode.inputs["glossyColor"].default_value = (float(cyclesParamsDict['glossyColorr']),float(cyclesParamsDict['glossyColorg']), float(cyclesParamsDict['glossyColorb']),1.0)
-
-
+            groupNode.inputs["diffuseColor"].default_value = (float(cyclesParamsDict['diffuse_colorr']),float(cyclesParamsDict['diffuse_colorg']), float(cyclesParamsDict['diffuse_colorb']),1.0)
+            groupNode.inputs["glossyColor"].default_value = (float(cyclesParamsDict['glossy_colorr']),float(cyclesParamsDict['glossy_colorg']), float(cyclesParamsDict['glossy_colorb']),1.0)
+            groupNode.inputs["fresnelMult"].default_value = float(cyclesParamsDict['fresnel_mult'])
 
             output = diffTexNode.outputs[0]
             input = groupNode.inputs['diffTexture']
@@ -134,7 +134,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             if cyclesParamsDict['use_displacement'] == 'on':
 
                 img = D.images.load(cyclesParamsDict['displacement_texture'])
-                groupNode.inputs['displacementAmount'].default_value = float(cyclesParamsDict['displacementAmount'])
+                groupNode.inputs['displacementAmount'].default_value = float(cyclesParamsDict['displacement_amount'])
                 dispTexNode.image = img
             else:
                 groupNode.inputs['displacementAmount'].default_value = 0.0
@@ -152,6 +152,117 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             output = groupNode.outputs[1] ## displacement output
             input = outputNode.inputs[2]  ## displacement input
             mat.node_tree.links.new(input, output)    
+
+        elif shaderType == 'diffuse+anisotropic':
+
+
+            shaderName = "diffuseAnisotropicCustomShader"
+            groupNode = nodes.new('ShaderNodeGroup')
+            groupNode.node_tree = bpy.data.node_groups[shaderName]
+
+            diffTexNode = nodes.new('ShaderNodeTexImage')
+            diffTexNode.name = 'Diffuse Texture'
+            diffTexNode.label = 'Diffuse Texture'
+            if cyclesParamsDict['use_diffuse_texture'] == 'on':
+
+                img = D.images.load(cyclesParamsDict['diffuse_texture'])
+                groupNode.inputs['diffTextureMult'].default_value = 1.0
+                diffTexNode.image = img
+            else:
+                groupNode.inputs['diffTextureMult'].default_value = 0.0
+
+            
+            output = diffTexNode.outputs[0]
+            input = groupNode.inputs['diffTexture']
+            mat.node_tree.links.new(input, output)     
+
+
+            ### anisotropy texture
+
+            if cyclesParamsDict['use_anisotropy_texture'] == 'on':
+
+                anisoTexNode = nodes.new('ShaderNodeTexImage')
+                anisoTexNode.name = 'Anisotropy Texture'
+                anisoTexNode.label = 'Anisotropy Texture'
+
+                img = D.images.load(cyclesParamsDict['anisotropy_texture'])                
+                anisoTexNode.image = img
+
+                output = anisoTexNode.outputs[0]
+                input = groupNode.inputs['anisotropy']
+                mat.node_tree.links.new(input, output)             
+
+            else:
+                pass
+
+            
+  
+
+            ### rotation texture
+
+            if cyclesParamsDict['use_rotation_texture'] == 'on':
+
+                rotationTexNode = nodes.new('ShaderNodeTexImage')
+                rotationTexNode.name = 'Rotation Texture'
+                rotationTexNode.label = 'Rotation Texture'
+
+                img = D.images.load(cyclesParamsDict['rotation_texture'])                
+                rotationTexNode.image = img
+
+                output = rotationTexNode.outputs[0]
+                input = groupNode.inputs['rotation']
+                mat.node_tree.links.new(input, output)                    
+                      
+            else:
+                pass
+
+            
+              
+
+
+
+
+            groupNode.inputs["roughness"].default_value = float(cyclesParamsDict['roughness'])
+            groupNode.inputs["diffuseColor"].default_value = (float(cyclesParamsDict['diffuse_colorr']),float(cyclesParamsDict['diffuse_colorg']), float(cyclesParamsDict['diffuse_colorb']),1.0)
+            groupNode.inputs["glossyColor"].default_value = (float(cyclesParamsDict['glossy_colorr']),float(cyclesParamsDict['glossy_colorg']), float(cyclesParamsDict['glossy_colorb']),1.0)
+            groupNode.inputs["fresnelMult"].default_value = float(cyclesParamsDict['fresnel_mult'])
+
+
+
+      
+
+            if cyclesParamsDict['use_point_color'] == 'on':
+                groupNode.inputs['vertexColorMult'].default_value = 1.0
+            else:
+                groupNode.inputs['vertexColorMult'].default_value = 0.0
+
+       
+
+
+            dispTexNode = nodes.new('ShaderNodeTexImage')
+            dispTexNode.name = 'Displacement Texture'
+            dispTexNode.label = 'Displacement Texture'
+            if cyclesParamsDict['use_displacement'] == 'on':
+
+                img = D.images.load(cyclesParamsDict['displacement_texture'])
+                groupNode.inputs['displacementAmount'].default_value = float(cyclesParamsDict['displacement_amount'])
+                dispTexNode.image = img
+            else:
+                groupNode.inputs['displacementAmount'].default_value = 0.0
+
+            output = dispTexNode.outputs[0]
+            input = groupNode.inputs['displacementTexture']
+            mat.node_tree.links.new(input, output)                    
+
+            outputNode = nodes['Material Output']
+            output = groupNode.outputs[0]
+            input = outputNode.inputs[0]
+            mat.node_tree.links.new(input, output)    
+
+            outputNode = nodes['Material Output']
+            output = groupNode.outputs[1] ## displacement output
+            input = outputNode.inputs[2]  ## displacement input
+            mat.node_tree.links.new(input, output)                
 
 
         elif shaderType == 'diffuse+glossy+translucent':
@@ -184,10 +295,10 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 groupNode.inputs['diffTextureMult'].default_value = 0.0            
 
             groupNode.inputs["roughness"].default_value = float(cyclesParamsDict['roughness'])
-            groupNode.inputs["diffuseColor"].default_value = (float(cyclesParamsDict['diffuseColorr']),float(cyclesParamsDict['diffuseColorg']), float(cyclesParamsDict['diffuseColorb']),1.0)
-            groupNode.inputs["glossyColor"].default_value = (float(cyclesParamsDict['glossyColorr']),float(cyclesParamsDict['glossyColorg']), float(cyclesParamsDict['glossyColorb']),1.0)
-            groupNode.inputs["translucentColor"].default_value = (float(cyclesParamsDict['translucentColorr']),float(cyclesParamsDict['translucentColorg']), float(cyclesParamsDict['translucentColorb']),1.0)
-
+            groupNode.inputs["diffuseColor"].default_value = (float(cyclesParamsDict['diffuse_colorr']),float(cyclesParamsDict['diffuse_colorg']), float(cyclesParamsDict['diffuse_colorb']),1.0)
+            groupNode.inputs["glossyColor"].default_value = (float(cyclesParamsDict['glossy_colorr']),float(cyclesParamsDict['glossy_colorg']), float(cyclesParamsDict['glossy_colorb']),1.0)
+            groupNode.inputs["translucentColor"].default_value = (float(cyclesParamsDict['translucent_colorr']),float(cyclesParamsDict['translucent_colorg']), float(cyclesParamsDict['translucent_colorb']),1.0)
+            groupNode.inputs["fresnelMult"].default_value = float(cyclesParamsDict['fresnel_mult'])
 
 
             output = diffTexNode.outputs[0]
@@ -212,7 +323,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             if cyclesParamsDict['use_displacement'] == 'on':
 
                 img = D.images.load(cyclesParamsDict['displacement_texture'])
-                groupNode.inputs['displacementAmount'].default_value = float(cyclesParamsDict['displacementAmount'])
+                groupNode.inputs['displacementAmount'].default_value = float(cyclesParamsDict['displacement_amount'])
                 dispTexNode.image = img
             else:
                 groupNode.inputs['displacementAmount'].default_value = 0.0
@@ -231,6 +342,9 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             input = outputNode.inputs[2]  ## displacement input
             mat.node_tree.links.new(input, output)    
 
+
+        return mat
+
         
 
     def loadXMLData(self, xmlFile):
@@ -238,8 +352,92 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         xmlData = dom.parse(xmlFile)
         camList = xmlData.firstChild.getElementsByTagName('camera')
         objList = xmlData.firstChild.getElementsByTagName('object')
+        lightList = xmlData.firstChild.getElementsByTagName('light')
         
         SHADERS_LOADED = False
+
+        # imports Lights
+        for light in lightList:
+
+            lightName = light.getAttribute('name')
+            lightSizeX = light.getAttribute('sizex')
+            lightSizeY = light.getAttribute('sizey')
+            light_emission_strength = light.getAttribute('emissionStrength')
+            light_color  = light.getAttribute('color').split(',')
+
+
+
+            try : 
+                candidate = bpy.context.scene.objects[lightName]
+
+                bpy.ops.object.select_all(action='DESELECT')
+                candidate.select = True
+                print (candidate.name, "delete -----------------")
+                bpy.ops.object.delete()
+                bpy.ops.object.select_all(action='DESELECT')
+            except:
+                pass                     
+
+            isLightAnimated = light.getAttribute('isAnimated') == 'True'
+            
+   
+            
+            ### create light object
+            lightLight = bpy.data.lamps.new(lightName,'AREA')
+
+            lightObj = bpy.data.objects.new(lightName, lightLight)
+            bpy.context.scene.objects.link(lightObj)
+
+
+            lightLight.shape = 'RECTANGLE'
+            lightLight.size = float(lightSizeX)
+            lightLight.size_y = float(lightSizeY)
+
+            lightLight.use_nodes = True
+            lightLight.node_tree.nodes['Emission'].inputs['Strength'].default_value = float(light_emission_strength)
+            lightLight.node_tree.nodes['Emission'].inputs['Color'].default_value = (float(light_color[0]) , float(light_color[1]), float(light_color[2]),1.0)
+
+
+
+            if isLightAnimated:
+                transformAnimation = light.getElementsByTagName('transformAnimation')[0]
+                frames = transformAnimation.getElementsByTagName('frame')
+                for frame in frames:
+                    frameNumber= int(frame.getAttribute('frameNumber'))
+                    translation = frame.getAttribute('translation').strip('[,]').split(',')
+                    rotation = frame.getAttribute('rotation').strip('[,]').split(',')
+
+                    lightObj.rotation_mode = 'QUATERNION'
+                    lightObj.rotation_quaternion[0] = float(rotation[3]) ##W
+                    lightObj.rotation_quaternion[1] = float(rotation[0]) ##X
+                    lightObj.rotation_quaternion[2] = float(rotation[1]) ##Y
+                    lightObj.rotation_quaternion[3] = float(rotation[2]) ##Z
+                    lightObj.keyframe_insert(data_path='rotation_quaternion', frame=frameNumber)
+
+                    lightObj.location[0] = float(translation[0])
+                    lightObj.location[1] = float(translation[1])
+                    lightObj.location[2] = float(translation[2])
+
+                    lightObj.keyframe_insert(data_path='location', frame=frameNumber)
+
+
+            else:
+                transforms = light.getElementsByTagName('transforms')[0]
+                translation = transforms.getAttribute('translation').strip('[,]').split(',')
+                rotation = transforms.getAttribute('rotation').strip('[,]').split(',')
+
+                lightObj.rotation_mode = 'QUATERNION' 
+                lightObj.rotation_quaternion[0] = float(rotation[3]) ##W
+                lightObj.rotation_quaternion[1] = float(rotation[0]) ##X
+                lightObj.rotation_quaternion[2] = float(rotation[1]) ##Y
+                lightObj.rotation_quaternion[3] = float(rotation[2]) ##Z       
+
+                lightObj.location[0] = float(translation[0])
+                lightObj.location[1] = float(translation[1])
+                lightObj.location[2] = float(translation[2])
+   
+         
+
 
         # imports cams
         for cam in camList:
@@ -376,7 +574,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
             objName = obj.getAttribute('name')
             shaderName = obj.getAttribute('shaderName')
-            animationType = obj.getAttribute('animationType')
+            animationType = obj.getAttribute('animation_type')
             shaderType = obj.getAttribute('shaderType')    
 
             cyclesParams = obj.getElementsByTagName('cyclesParams')        
@@ -445,19 +643,19 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
 
 
-            fbxObj.cycles_visibility.camera = int(cyclesParamsDict['rayVisCamera'] == 'on')
-            fbxObj.cycles_visibility.diffuse = int(cyclesParamsDict['rayVisDiffuse'] == 'on')
-            fbxObj.cycles_visibility.glossy = int(cyclesParamsDict['rayVisGlossy'] == 'on')
-            fbxObj.cycles_visibility.transmission = int(cyclesParamsDict['rayVisTransmission'] == 'on')
-            fbxObj.cycles_visibility.scatter = int(cyclesParamsDict['rayVisVolumeScatter'] == 'on')
-            fbxObj.cycles_visibility.shadow = int(cyclesParamsDict['rayVisShadow'] == 'on')
+            fbxObj.cycles_visibility.camera = int(cyclesParamsDict['ray_vis_camera'] == 'on')
+            fbxObj.cycles_visibility.diffuse = int(cyclesParamsDict['ray_vis_diffuse'] == 'on')
+            fbxObj.cycles_visibility.glossy = int(cyclesParamsDict['ray_vis_glossy'] == 'on')
+            fbxObj.cycles_visibility.transmission = int(cyclesParamsDict['ray_vis_transmission'] == 'on')
+            fbxObj.cycles_visibility.scatter = int(cyclesParamsDict['ray_vis_volume_scatter'] == 'on')
+            fbxObj.cycles_visibility.shadow = int(cyclesParamsDict['ray_vis_shadow'] == 'on')
 
-            self.createShaders_V2(objName, shaderType, cyclesParamsDict)   
+            createdShader = self.createShaders_V2(objName, shaderType, cyclesParamsDict)   
             try:
                 if len(fbxObj.data.materials) != 0:
-                    fbxObj.data.materials[0] = bpy.data.materials[shaderName]
+                    fbxObj.data.materials[0] = createdShader
                 else:    
-                    fbxObj.data.materials.append(bpy.data.materials[shaderName])
+                    fbxObj.data.materials.append(createdShader)
             except:
                 pass
 

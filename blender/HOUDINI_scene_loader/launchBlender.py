@@ -6,8 +6,22 @@ import sys
 
 D = bpy.data
 C = bpy.context
-sceneFilePath = sys.argv[-2] # start from the end: these are 'trailing' parameters to the command blender.exe and ITS parameters
-DO_RENDER = int(sys.argv[-1])
+sceneFilePath = sys.argv[-3] # start from the end: these are 'trailing' parameters to the command blender.exe and ITS parameters
+DO_RENDER = int(sys.argv[-2])
+parmsDict = sys.argv[-1]
+
+
+
+dictString = parmsDict.split(',')
+print(dictString)
+
+goodParmsDict = {}
+for s in dictString:
+    # print (s.split(':')[0].strip(' '), s.split(':')[1].strip(' '))
+    key = s.split(':')[0].strip(' ,\'{}')
+    value = s.split(':')[1].strip('\'}{ ')
+    goodParmsDict[key] = value    
+    
 
 
 
@@ -24,34 +38,50 @@ C.scene.render.engine = 'CYCLES'
 # bpy.ops.script.python_file_run(override,filepath="C:\\Program Files\\Blender Foundation\\Blender\\2.76\\scripts\\presets\\framerate\\25.py")
 
 
-D.scenes['Scene'].cycles.device = 'GPU'
+D.scenes['Scene'].cycles.device = goodParmsDict['device']
 D.scenes['Scene'].cycles.use_square_samples = True
-D.scenes['Scene'].cycles.samples = 32
-D.scenes['Scene'].cycles.film_transparent = True
+D.scenes['Scene'].cycles.samples = int(goodParmsDict['samples'])
+D.scenes['Scene'].cycles.film_transparent = goodParmsDict['transparent'] == 'True'
+D.scenes['Scene'].cycles.film_exposure = float(goodParmsDict['filmExposure'])
 
 
-D.scenes['Scene'].render.resolution_percentage = 100
+D.scenes['Scene'].render.resolution_percentage = int(goodParmsDict['resolutionPercentage'])
+D.scenes['Scene'].render.tile_x =  int(goodParmsDict['tileSize'])
+D.scenes['Scene'].render.tile_y =  int(goodParmsDict['tileSize'])
 
-D.scenes['Scene'].render.tile_x = 256
-D.scenes['Scene'].render.tile_y = 256
-
-D.scenes['Scene'].render.use_motion_blur = True
+D.scenes['Scene'].render.use_motion_blur = goodParmsDict['useMotionBlur'] == 'True'
 
 ### set background Shader
 D.worlds['World'].use_nodes = True
-D.worlds['World'].node_tree.nodes['Background'].inputs[0].default_value = (0.05,0.05,0.05,1.0)
+D.worlds['World'].node_tree.nodes['Background'].inputs[0].default_value = (0.0,0.0,0.0,1.0)
 
+
+
+### limitedd global illumination
+
+cycles = bpy.context.scene.cycles
+
+cycles.max_bounces = 8
+cycles.min_bounces = 3
+cycles.caustics_reflective = False
+cycles.caustics_refractive = False
+cycles.diffuse_bounces = 1
+cycles.glossy_bounces = 4
+cycles.transmission_bounces = 8
+cycles.volume_bounces = 2
+cycles.transparent_min_bounces = 8
+cycles.transparent_max_bounces = 8
 
 ### HOUDINI scene loader
 bpy.ops.object.houdini_scene_loader_operator()
 ### don't need it, fps is probably set by fbx importer
 # C.scene.render.fps = 25.0
-fStart = 20
-fEnd = 100
+fStart = int(goodParmsDict['fStart'])
+fEnd = int(goodParmsDict['fEnd'])
 if DO_RENDER:
 	for i in range(fStart,fEnd+1):
 		C.scene.frame_current = i
-		C.scene.render.filepath = "Z:/BLENDER_playground/render/trees/tree_01/tree_01_%s.png" % i
+		C.scene.render.filepath = "F:/BLENDER_playground/render/lampe_colonne/lampe_colonne_%s.png" % i
 		D.scenes['Scene'].camera = bpy.data.objects['export_cam1']
 
 		### render
