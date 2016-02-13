@@ -51,10 +51,6 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             # bpy.data.node_groups.new(shaderName, 'ShaderNodeTree')
 
 
-
-   
-
-
     def createShaders_V2(self, objName , shaderType, cyclesParamsDict):
 
         D = bpy.data
@@ -345,8 +341,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
         return mat
 
-        
-
+    
     def loadXMLData(self, xmlFile):
         # print('loadXMLData function -------')
         xmlData = dom.parse(xmlFile)
@@ -566,8 +561,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
 
 
-        objSequences = {}
-        
+        objSequences = {}        
         #### import  objects
         for obj in objList:
 
@@ -600,6 +594,9 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             
 
             isPointAnim = obj.getAttribute('isPointAnim') == 'True'
+            isObjAnim = obj.getAttribute('isObjAnim') == 'True'
+
+
 
   
             ### import fbx
@@ -642,6 +639,17 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             fbxObj.data.use_auto_smooth = False
 
 
+            if not isObjAnim:
+                objTransforms = obj.getElementsByTagName('transforms')[0]
+                
+                objTranslation = objTransforms.getElementsByTagName('translation')[0].childNodes[0].data.split(' ')
+                objRotation = objTransforms.getElementsByTagName('rotation')[0]
+                objScale = objTransforms.getElementsByTagName('scale')[0]
+
+                fbxObj.location[0] = float(objTranslation[0])
+                fbxObj.location[1] = float(objTranslation[2])*-1
+                fbxObj.location[2] = float(objTranslation[1])
+                print ("Saved:", objTranslation)
 
             fbxObj.cycles_visibility.camera = int(cyclesParamsDict['ray_vis_camera'] == 'on')
             fbxObj.cycles_visibility.diffuse = int(cyclesParamsDict['ray_vis_diffuse'] == 'on')

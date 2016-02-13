@@ -1,5 +1,6 @@
 import bpy
 import sys
+import os
 #from sys import stdout
 
 
@@ -49,6 +50,9 @@ D.scenes['Scene'].render.resolution_percentage = int(goodParmsDict['resolutionPe
 D.scenes['Scene'].render.tile_x =  int(goodParmsDict['tileSize'])
 D.scenes['Scene'].render.tile_y =  int(goodParmsDict['tileSize'])
 
+
+D.scenes['Scene'].render.use_file_extension =  False
+
 D.scenes['Scene'].render.use_motion_blur = goodParmsDict['useMotionBlur'] == 'True'
 
 ### set background Shader
@@ -76,12 +80,32 @@ cycles.transparent_max_bounces = 8
 bpy.ops.object.houdini_scene_loader_operator()
 ### don't need it, fps is probably set by fbx importer
 # C.scene.render.fps = 25.0
+
+outputPath = goodParmsDict['outputPath']
+
+galere = outputPath[:1]+ ':' + outputPath[1:] 
+
+print ("Saved: -->",galere)
+
+
+# sp = outputPath.split('/')
+
+# goodPath =os.path.join(*sp)
+
+C.scene.render.filepath = galere[:-4]+'.png'
+
 fStart = int(goodParmsDict['fStart'])
 fEnd = int(goodParmsDict['fEnd'])
 if DO_RENDER:
 	for i in range(fStart,fEnd+1):
 		C.scene.frame_current = i
-		C.scene.render.filepath = "F:/BLENDER_playground/render/trees/01/tree_anim_%s.png" % i
+
+		
+
+		ext = outputPath.split('.')[-1:]
+		extLength = len(ext)
+
+		C.scene.render.filepath = galere[:-4]+'_'+str(i)+'.png'
 		D.scenes['Scene'].camera = bpy.data.objects['export_cam1']
 
 		### render

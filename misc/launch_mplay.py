@@ -2,14 +2,16 @@ import subprocess
 import time
 import glob
 
-
-path = "F:/BLENDER_playground/render/trees/tree_02/tree_02_*.png"
+waitTime = 0.5
+path = "F:/HOUDINI_15_playground/lampe_colonne/render/02/lampes_02*.png"
 # F:\HOUDINI_15_playground\render\fur_sea
 obj = glob.glob(path)
 newNum = len(obj)
 
 while True:
-	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe -minimal -T -p -z 100 -f 1 "+str(newNum)+" 1 -r 25 "+path) 
+	### -T : always on top COMMAND
+	### -minimal 
+	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe -T -p -z 100 -f 1 "+str(newNum)+" 1 -r 25 "+path) 
 	
 
 	# handle = win32gui.FindWindow(None, u"MPlay*")
@@ -33,7 +35,7 @@ while True:
 			bBreak = True
 
 		else:
-			n = 0.5
+			n = waitTime
 			print ("sleep %s minutes" % (n))
 			time.sleep(60*n)
 
