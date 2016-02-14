@@ -45,13 +45,13 @@ D.scenes['Scene'].cycles.samples = int(goodParmsDict['samples'])
 D.scenes['Scene'].cycles.film_transparent = goodParmsDict['transparent'] == 'True'
 D.scenes['Scene'].cycles.film_exposure = float(goodParmsDict['filmExposure'])
 
-
+D.scenes['Scene'].render.resolution_x = int(goodParmsDict['resolutionX'])
+D.scenes['Scene'].render.resolution_y = int(goodParmsDict['resolutionY'])
 D.scenes['Scene'].render.resolution_percentage = int(goodParmsDict['resolutionPercentage'])
+
 D.scenes['Scene'].render.tile_x =  int(goodParmsDict['tileSize'])
 D.scenes['Scene'].render.tile_y =  int(goodParmsDict['tileSize'])
 
-
-D.scenes['Scene'].render.use_file_extension =  False
 
 D.scenes['Scene'].render.use_motion_blur = goodParmsDict['useMotionBlur'] == 'True'
 
@@ -85,6 +85,18 @@ outputPath = goodParmsDict['outputPath']
 
 galere = outputPath[:1]+ ':' + outputPath[1:] 
 
+ext = galere.split('.')[-1:][0]
+if ext == 'exr' or ext =='EXR' :
+	D.scenes['Scene'].render.image_settings.file_format = 'OPEN_EXR_MULTILAYER'
+elif ext =='png' or ext == 'PNG' :
+	D.scenes['Scene'].render.image_settings.file_format = 'PNG'
+elif ext =='tga' or ext == 'TGA' :
+	D.scenes['Scene'].render.image_settings.file_format = 'TARGA'	
+else:
+	##default to PNG
+	D.scenes['Scene'].render.image_settings.file_format = 'PNG'
+
+extLength = len(ext)
 print ("Saved: -->",galere)
 
 
@@ -92,7 +104,11 @@ print ("Saved: -->",galere)
 
 # goodPath =os.path.join(*sp)
 
-C.scene.render.filepath = galere[:-4]+'.png'
+C.scene.render.filepath = galere[:-4]
+
+D.scenes['Scene'].render.image_settings.color_depth = '16'
+
+D.scenes['Scene'].render.use_file_extension =  True
 
 fStart = int(goodParmsDict['fStart'])
 fEnd = int(goodParmsDict['fEnd'])
@@ -102,10 +118,9 @@ if DO_RENDER:
 
 		
 
-		ext = outputPath.split('.')[-1:]
-		extLength = len(ext)
 
-		C.scene.render.filepath = galere[:-4]+'_'+str(i)+'.png'
+
+		C.scene.render.filepath = galere[:-4]+'_'+str(i)+str(ext)
 		D.scenes['Scene'].camera = bpy.data.objects['export_cam1']
 
 		### render

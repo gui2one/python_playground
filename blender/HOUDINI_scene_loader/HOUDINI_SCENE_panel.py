@@ -17,6 +17,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
     
 
     def initData(self):  
+        print('gui2one_INFOS:loading_started')
         pass  
     
             
@@ -50,8 +51,78 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             
             # bpy.data.node_groups.new(shaderName, 'ShaderNodeTree')
 
+    def createShaders_V3(self, xmlFile):
 
-    def createShaders_V2(self, objName , shaderType, cyclesParamsDict):
+        D = bpy.data
+        C = bpy.context
+
+        ## clean materials with no users
+        mats = D.materials
+        for mat in mats:
+            if mat.users == 0:
+                D.materials.remove(mat)
+
+        ## not an error : relist materials
+        mats = D.materials
+        for mat in mats:
+            if '.' in mat.name:
+                mat.name = mat.name.split('.')[0]
+
+        ### if materials with '.001' remains, they are duplicates, so replace this material with the source one
+        ### again :
+        for obj in D.objects:
+            # print ("material_slot -->",obj.material_slots.__len__())
+            for slot in obj.material_slots:
+                if '.' in slot.material.name:
+                    slot.material = D.materials[ slot.material.name.split('.')[0] ]
+
+        ## clean materials with no users one last time
+        mats = D.materials
+        for mat in mats:
+            if mat.users == 0:
+                D.materials.remove(mat)       
+
+
+        ### now that we have cleaned up the scene of bad duplicate materials 
+        ### now load materials from xml file
+        xmlData = dom.parse(xmlFile)
+        materialList = xmlData.firstChild.getElementsByTagName('materials')[0]
+        for material in materialList.getElementsByTagName('material'):
+            materialName = material.getAttribute('name')
+            cyclesParamsDict = {}
+            for child in material.childNodes:
+                if child.nodeType == 1:
+                    cyclesParamsDict[child.nodeName] = child.getAttribute('value')
+
+            print ('---------------------------')
+            print (cyclesParamsDict)    
+
+            self.initShader(materialName,cyclesParamsDict['shader_type'], cyclesParamsDict )     
+
+            # print (material.getAttribute('name'),  "--->", material.childNodes)
+        
+
+        ## now, good materials were created, but they still don't have the right name ( e.g they have '.001' at the end)
+
+        for obj in D.objects:
+            # print ("material_slot -->",obj.material_slots.__len__())
+            for slot in obj.material_slots:               
+                slot.material = D.materials[ slot.material.name.split('.')[0]+'.001' ]
+
+        ## finally : reclean materials with no users
+        mats = D.materials
+        for mat in mats:
+            if mat.users == 0:
+                D.materials.remove(mat)
+
+        ## and rename them whitout '.001'
+        mats = D.materials
+        for mat in mats:
+            if '.' in mat.name:
+                mat.name = mat.name.split('.')[0]
+
+
+    def initShader(self, objName , shaderType, cyclesParamsDict):
 
         D = bpy.data
         C = bpy.context
@@ -62,11 +133,11 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         mat.use_nodes = True
 
         nodes = mat.node_tree.nodes
-        if len(D.objects[objName].data.materials) == 0:
-            D.objects[objName].data.materials.append(mat)
-        else :
-            D.objects[objName].data.materials[0] = mat
-        # D.objects[objName].data.materials.append(mat)
+        # if len(D.objects[objName].data.materials) == 0:
+        #     D.objects[objName].data.materials.append(mat)
+        # else :
+        #     D.objects[objName].data.materials[0] = mat
+
 
         if shaderType == 'emission':
 
@@ -78,6 +149,23 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 groupNode.inputs['vertexColorMult'].default_value = 1.0
             else:
                 groupNode.inputs['vertexColorMult'].default_value = 0.0
+
+            diffTexNode = nodes.new('ShaderNodeTexImage')
+            diffTexNode.name = 'Emission Texture'
+            diffTexNode.label = 'Emission Texture'
+            if cyclesParamsDict['use_diffuse_texture'] == 'on':
+                if cyclesParamsDict['diffuse_texture'] != '':
+                    img = D.images.load(cyclesParamsDict['diffuse_texture'])
+ 
+                    diffTexNode.image = img
+
+                    output = diffTexNode.outputs['Color']
+                    input = groupNode.inputs['emissionColor']
+                    mat.node_tree.links.new(input, output)                          
+   
+
+
+
 
             ## set emission color to diffuse color
             groupNode.inputs['emissionColor'].default_value = (float(cyclesParamsDict['diffuse_colorr']),float(cyclesParamsDict['diffuse_colorg']), float(cyclesParamsDict['diffuse_colorb']),1.0)
@@ -98,10 +186,10 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             diffTexNode.name = 'Diffuse Texture'
             diffTexNode.label = 'Diffuse Texture'
             if cyclesParamsDict['use_diffuse_texture'] == 'on':
-
-                img = D.images.load(cyclesParamsDict['diffuse_texture'])
-                groupNode.inputs['diffTextureMult'].default_value = 1.0
-                diffTexNode.image = img
+                if cyclesParamsDict['diffuse_texture'] != '':
+                    img = D.images.load(cyclesParamsDict['diffuse_texture'])
+                    groupNode.inputs['diffTextureMult'].default_value = 1.0
+                    diffTexNode.image = img
             else:
                 groupNode.inputs['diffTextureMult'].default_value = 0.0
 
@@ -212,12 +300,6 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             else:
                 pass
 
-            
-              
-
-
-
-
             groupNode.inputs["roughness"].default_value = float(cyclesParamsDict['roughness'])
             groupNode.inputs["diffuseColor"].default_value = (float(cyclesParamsDict['diffuse_colorr']),float(cyclesParamsDict['diffuse_colorg']), float(cyclesParamsDict['diffuse_colorb']),1.0)
             groupNode.inputs["glossyColor"].default_value = (float(cyclesParamsDict['glossy_colorr']),float(cyclesParamsDict['glossy_colorg']), float(cyclesParamsDict['glossy_colorb']),1.0)
@@ -276,6 +358,11 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 img = D.images.load(cyclesParamsDict['diffuse_texture'])
                 groupNode.inputs['diffTextureMult'].default_value = 1.0
                 diffTexNode.image = img
+
+                if cyclesParamsDict['use_diffuse_texture_alpha'] == 'on':
+                    output = diffTexNode.outputs['Alpha']
+                    input = groupNode.inputs['alpha']
+                    mat.node_tree.links.new(input,output)
             else:
                 groupNode.inputs['diffTextureMult'].default_value = 0.0
 
@@ -602,11 +689,11 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             ### import fbx
             if animationType == 'mesh_cache' or not isPointAnim:
                 fbxFilePath = '%s/geo/%s.fbx' % (projectDir, objName)
-                bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100)
+                bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100, use_image_search=False)
             else:
                 # print("load file path current frame")
                 fbxFilePath = '%s/geo/%s_sequence/%s_1.fbx' % (projectDir, objName, objName)
-                bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100)
+                bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100, use_image_search=False)
             
             if isPointAnim and animationType == 'mesh_cache':
                 bpy.context.scene.objects[objName].modifiers.new('mesh_cache','MESH_CACHE')
@@ -643,13 +730,20 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 objTransforms = obj.getElementsByTagName('transforms')[0]
                 
                 objTranslation = objTransforms.getElementsByTagName('translation')[0].childNodes[0].data.split(' ')
-                objRotation = objTransforms.getElementsByTagName('rotation')[0]
+                objRotation = objTransforms.getElementsByTagName('rotation')[0].childNodes[0].data.split(' ')
                 objScale = objTransforms.getElementsByTagName('scale')[0]
 
                 fbxObj.location[0] = float(objTranslation[0])
                 fbxObj.location[1] = float(objTranslation[2])*-1
                 fbxObj.location[2] = float(objTranslation[1])
-                print ("Saved:", objTranslation)
+                    # camObj.rotation_euler[2] = math.radians(float(rotation[1])*-1)
+                    # camObj.rotation_euler[1] = math.radians(float(rotation[2]))
+                    # camObj.rotation_euler[0] = math.radians(float(rotation[0])+90.0)
+
+                fbxObj.rotation_euler[0] = math.radians(float(objRotation[0])+90)
+                fbxObj.rotation_euler[1] = math.radians(float(objRotation[2]))
+                fbxObj.rotation_euler[2] = math.radians(float(objRotation[1]))
+                print ("gui2one_INFOS:", objTranslation)
 
             fbxObj.cycles_visibility.camera = int(cyclesParamsDict['ray_vis_camera'] == 'on')
             fbxObj.cycles_visibility.diffuse = int(cyclesParamsDict['ray_vis_diffuse'] == 'on')
@@ -658,14 +752,14 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             fbxObj.cycles_visibility.scatter = int(cyclesParamsDict['ray_vis_volume_scatter'] == 'on')
             fbxObj.cycles_visibility.shadow = int(cyclesParamsDict['ray_vis_shadow'] == 'on')
 
-            createdShader = self.createShaders_V2(objName, shaderType, cyclesParamsDict)   
-            try:
-                if len(fbxObj.data.materials) != 0:
-                    fbxObj.data.materials[0] = createdShader
-                else:    
-                    fbxObj.data.materials.append(createdShader)
-            except:
-                pass
+            # createdShader = self.initShader(objName, shaderType, cyclesParamsDict)   
+            # try:
+            #     if len(fbxObj.data.materials) != 0:
+            #         fbxObj.data.materials[0] = createdShader
+            #     else:    
+            #         fbxObj.data.materials.append(createdShader)
+            # except:
+            #     pass
 
             
             
@@ -701,17 +795,19 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 bpy.ops.object.delete(use_global=False)
 
                 ##### import current frame geometry
-                currentFrameObj = bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100)
+                currentFrameObj = bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100, use_image_search=False)
                 # currentFrameObj.name = objName    
                 fbxObj = bpy.context.scene.objects[objName]
                 fbxObj.data.use_auto_smooth = False     
-                try:
-                    if len(fbxObj.data.materials) != 0:
-                        fbxObj.data.materials[0] = bpy.data.materials[objName]
-                    else:    
-                        fbxObj.data.materials.append(bpy.data.materials[objName])
-                except:
-                    pass                           
+
+                #### materials
+                # try:
+                #     if len(fbxObj.data.materials) != 0:
+                #         fbxObj.data.materials[0] = bpy.data.materials[objName]
+                #     else:    
+                #         fbxObj.data.materials.append(bpy.data.materials[objName])
+                # except:
+                #     pass                           
                     
         bpy.app.handlers.frame_change_pre.append(callbackFunction )
         # bpy.app.handlers.render_pre.append(callbackFunction )
@@ -723,10 +819,15 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
     def execute(self, context):
         # self.report({'INFO'}, "Loading Houdini XML custom Scene File")
+        xmlFile = bpy.context.scene.conf_path
+
         self.initData()
         self.printInfos()
         self.loadShaders()
-        self.loadXMLData(bpy.context.scene.conf_path)
+        self.loadXMLData(xmlFile)
+        self.createShaders_V3(xmlFile)
+
+        print('gui2one_INFOS:loading_finished')
         return {'FINISHED'}
 
 class LayoutDemoPanel(bpy.types.Panel):
