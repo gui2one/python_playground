@@ -741,9 +741,16 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                     # camObj.rotation_euler[0] = math.radians(float(rotation[0])+90.0)
 
                 fbxObj.rotation_euler[0] = math.radians(float(objRotation[0])+90)
-                fbxObj.rotation_euler[1] = math.radians(float(objRotation[2]))
+                fbxObj.rotation_euler[1] = math.radians(float(objRotation[2])*-1)
                 fbxObj.rotation_euler[2] = math.radians(float(objRotation[1]))
-                print ("gui2one_INFOS:", objTranslation)
+
+                fbxObj.rotation_mode = 'XZY'
+                # fbxObj.rotation_mode = 'QUATERNION' 
+                # fbxObj.rotation_quaternion[0] = float(objRotation[3]) ##W
+                # fbxObj.rotation_quaternion[1] = float(objRotation[0]) ##X
+                # fbxObj.rotation_quaternion[2] = float(objRotation[1]) ##Y
+                # fbxObj.rotation_quaternion[3] = float(objRotation[2]) ##Z                       
+                # print ("gui2one_INFOS:", objTranslation)
 
             fbxObj.cycles_visibility.camera = int(cyclesParamsDict['ray_vis_camera'] == 'on')
             fbxObj.cycles_visibility.diffuse = int(cyclesParamsDict['ray_vis_diffuse'] == 'on')
@@ -752,14 +759,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             fbxObj.cycles_visibility.scatter = int(cyclesParamsDict['ray_vis_volume_scatter'] == 'on')
             fbxObj.cycles_visibility.shadow = int(cyclesParamsDict['ray_vis_shadow'] == 'on')
 
-            # createdShader = self.initShader(objName, shaderType, cyclesParamsDict)   
-            # try:
-            #     if len(fbxObj.data.materials) != 0:
-            #         fbxObj.data.materials[0] = createdShader
-            #     else:    
-            #         fbxObj.data.materials.append(createdShader)
-            # except:
-            #     pass
+
 
             
             
