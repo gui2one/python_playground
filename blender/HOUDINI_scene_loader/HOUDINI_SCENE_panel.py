@@ -8,6 +8,7 @@ import math
 
 
 
+
 class HoudiniSceneLoaderOperator(bpy.types.Operator):
     """Tooltip"""
     bl_idname = "object.houdini_scene_loader_operator"
@@ -34,7 +35,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             sys.exit(0)
         filepath = PYTHON_PLAYGROUND+"/blender/HOUDINI_scene_loader/shaders/shaders_01.blend"
         # shaderName = "diffuseGlossyCustomShader"
-        shaderName = ["diffuseGlossyCustomShader","diffuseGlossyTranslucentCustomShader","diffuseAnisotropicCustomShader","emissionCustomShader"]
+        shaderName = ["diffuseGlossyCustomShader","diffuseGlossyTranslucentCustomShader","diffuseAnisotropicCustomShader","emissionCustomShader","glassCustomShader"]
         # append, set to true to keep the link to the original file
         link = False 
 
@@ -179,6 +180,69 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
 
             shaderName = "diffuseGlossyCustomShader"
+            groupNode = nodes.new('ShaderNodeGroup')
+            groupNode.node_tree = bpy.data.node_groups[shaderName]
+
+            diffTexNode = nodes.new('ShaderNodeTexImage')
+            diffTexNode.name = 'Diffuse Texture'
+            diffTexNode.label = 'Diffuse Texture'
+            if cyclesParamsDict['use_diffuse_texture'] == 'on':
+                if cyclesParamsDict['diffuse_texture'] != '':
+                    img = D.images.load(cyclesParamsDict['diffuse_texture'])
+                    groupNode.inputs['diffTextureMult'].default_value = 1.0
+                    diffTexNode.image = img
+            else:
+                groupNode.inputs['diffTextureMult'].default_value = 0.0
+
+            
+
+            groupNode.inputs["roughness"].default_value = float(cyclesParamsDict['roughness'])
+            groupNode.inputs["diffuseColor"].default_value = (float(cyclesParamsDict['diffuse_colorr']),float(cyclesParamsDict['diffuse_colorg']), float(cyclesParamsDict['diffuse_colorb']),1.0)
+            groupNode.inputs["glossyColor"].default_value = (float(cyclesParamsDict['glossy_colorr']),float(cyclesParamsDict['glossy_colorg']), float(cyclesParamsDict['glossy_colorb']),1.0)
+            groupNode.inputs["fresnelMult"].default_value = float(cyclesParamsDict['fresnel_mult'])
+
+            output = diffTexNode.outputs[0]
+            input = groupNode.inputs['diffTexture']
+            mat.node_tree.links.new(input, output)           
+
+            if cyclesParamsDict['use_point_color'] == 'on':
+                groupNode.inputs['vertexColorMult'].default_value = 1.0
+            else:
+                groupNode.inputs['vertexColorMult'].default_value = 0.0
+
+       
+
+
+            dispTexNode = nodes.new('ShaderNodeTexImage')
+            dispTexNode.name = 'Displacement Texture'
+            dispTexNode.label = 'Displacement Texture'
+            if cyclesParamsDict['use_displacement'] == 'on':
+
+                img = D.images.load(cyclesParamsDict['displacement_texture'])
+                groupNode.inputs['displacementAmount'].default_value = float(cyclesParamsDict['displacement_amount'])
+                dispTexNode.image = img
+            else:
+                groupNode.inputs['displacementAmount'].default_value = 0.0
+
+            output = dispTexNode.outputs[0]
+            input = groupNode.inputs['displacementTexture']
+            mat.node_tree.links.new(input, output)                    
+
+            outputNode = nodes['Material Output']
+            output = groupNode.outputs[0]
+            input = outputNode.inputs[0]
+            mat.node_tree.links.new(input, output)    
+
+            outputNode = nodes['Material Output']
+            output = groupNode.outputs[1] ## displacement output
+            input = outputNode.inputs[2]  ## displacement input
+            mat.node_tree.links.new(input, output)    
+
+
+        elif shaderType == 'glass':
+
+
+            shaderName = "glassCustomShader"
             groupNode = nodes.new('ShaderNodeGroup')
             groupNode.node_tree = bpy.data.node_groups[shaderName]
 
@@ -431,12 +495,113 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
     
     def loadXMLData(self, xmlFile):
         # print('loadXMLData function -------')
+        confPath = bpy.context.scene.conf_path
+        projectDir = os.path.split(confPath)[0]
+
         xmlData = dom.parse(xmlFile)
         camList = xmlData.firstChild.getElementsByTagName('camera')
         objList = xmlData.firstChild.getElementsByTagName('object')
         lightList = xmlData.firstChild.getElementsByTagName('light')
+        instanceList = xmlData.firstChild.getElementsByTagName('instance')
+
+
+
+        ### import INSTANCES
+        instanceListStipped = []
+        for instance in instanceList:
+            name = instance.getAttribute('sourceObjectName')
+            if name not in instanceListStipped:
+                instanceListStipped.append(name)
+
+        for sourceObjectName in instanceListStipped:
+            path = '%s/geo/%s.blend'  % (projectDir, sourceObjectName)
+            print ('{INFOS} ------------>',path)
+            ### link instance
+
+            
+            sourceObjectPath = '%s/geo/%s.blend'  % (projectDir, sourceObjectName)
+
+            objToLink = [sourceObjectName]
+            # append, set to true to keep the link to the original file
+            link = False 
+
+
+
+            # append all groups from the .blend file
+
+            with bpy.data.libraries.load(sourceObjectPath, link=link) as (data_src, data_dst):
+
+                # print('hey', dir(data_src.objects[0]))
+                # print('ho', data_src.materials[0])
+                
+                data_dst.objects = objToLink
+
+            # print('{INFOS} --> |||000', data_dst.objects)
+
+            #link object to current scene
+
+            scn = bpy.context.scene
+            for obj in data_dst.objects:
+                if obj is not None:
+                    scn.objects.link(obj)       
+
+
+            
+            bpy.context.scene.objects.active = bpy.context.scene.objects[sourceObjectName]
+            
+            ## put the object in a group
+            bpy.ops.object.group_add()
+            bpy.data.groups['Group'].name = sourceObjectName
+            bpy.ops.object.group_link(group=sourceObjectName)      
+
+            bpy.data.objects[sourceObjectName].layers[1] = True
+            bpy.data.objects[sourceObjectName].layers[0] = False
+        # print('{INFOS} -->', sourceObjectName)
+        # print('{INFOS} -->', sourceObjectPath)
+
+        for instance in instanceList:
+            sourceObjectName = instance.getAttribute('sourceObjectName')
+            name = instance.getAttribute('name')
+            cyclesParams =  instance.getElementsByTagName('cyclesParams')[0]
+
+
+
+            bpy.ops.object.empty_add(type='PLAIN_AXES', radius=1, view_align=False, location=(0, 0, 0))
+            empty = bpy.context.active_object
+            bpy.context.object.dupli_type = 'GROUP'
+            bpy.context.object.dupli_group = bpy.data.groups[sourceObjectName]
+
+            empty.name = '%s_dummy' % (name)
+
+            transforms = instance.getElementsByTagName('transforms')[0]
+            rotation = transforms.getAttribute('rotation').strip('[,]').split(',')
+            translation = transforms.getAttribute('translation').strip('[,]').split(',')
+
+            empty.rotation_mode = 'QUATERNION' 
+            empty.rotation_quaternion[0] = float(rotation[3]) ##W
+            empty.rotation_quaternion[1] = float(rotation[0]) ##X
+            empty.rotation_quaternion[2] = float(rotation[1]) ##Y
+            empty.rotation_quaternion[3] = float(rotation[2]) ##Z       
+
+            empty.location[0] = float(translation[0])
+            empty.location[1] = float(translation[1])
+            empty.location[2] = float(translation[2])         
+
+            cyclesParamsDict = {}
+            for child in cyclesParams.childNodes:
+                if child.nodeType == 1: ######### ???
+                    cyclesParamsDict[child.nodeName] = child.getAttribute('value')
+            
+
+            empty.cycles_visibility.camera = int(cyclesParamsDict['ray_vis_camera'] == 'on')
+            empty.cycles_visibility.diffuse = int(cyclesParamsDict['ray_vis_diffuse'] == 'on')
+            empty.cycles_visibility.glossy = int(cyclesParamsDict['ray_vis_glossy'] == 'on')
+            empty.cycles_visibility.transmission = int(cyclesParamsDict['ray_vis_transmission'] == 'on')
+            empty.cycles_visibility.scatter = int(cyclesParamsDict['ray_vis_volume_scatter'] == 'on')
+            empty.cycles_visibility.shadow = int(cyclesParamsDict['ray_vis_shadow'] == 'on')
+
+
         
-        SHADERS_LOADED = False
 
         # imports Lights
         for light in lightList:
@@ -547,8 +712,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             
 
 
-            confPath = bpy.context.scene.conf_path
-            projectDir = os.path.split(confPath)[0]
+
 
             fbxFilePath = '%s/geo/%s.fbx' % (projectDir,camName)
 
@@ -731,7 +895,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 
                 objTranslation = objTransforms.getElementsByTagName('translation')[0].childNodes[0].data.split(' ')
                 objRotation = objTransforms.getElementsByTagName('rotation')[0].childNodes[0].data.split(' ')
-                objScale = objTransforms.getElementsByTagName('scale')[0]
+                objScale = objTransforms.getElementsByTagName('scale')[0].childNodes[0].data.split(' ')
 
                 fbxObj.location[0] = float(objTranslation[0])
                 fbxObj.location[1] = float(objTranslation[2])*-1
@@ -745,12 +909,16 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 fbxObj.rotation_euler[2] = math.radians(float(objRotation[1]))
 
                 fbxObj.rotation_mode = 'XZY'
+
                 # fbxObj.rotation_mode = 'QUATERNION' 
                 # fbxObj.rotation_quaternion[0] = float(objRotation[3]) ##W
                 # fbxObj.rotation_quaternion[1] = float(objRotation[0]) ##X
                 # fbxObj.rotation_quaternion[2] = float(objRotation[1]) ##Y
                 # fbxObj.rotation_quaternion[3] = float(objRotation[2]) ##Z                       
-                # print ("gui2one_INFOS:", objTranslation)
+                
+                fbxObj.scale[0] = float(objScale[0])                
+                fbxObj.scale[1] = float(objScale[1])      
+                fbxObj.scale[2] = float(objScale[2])                          
 
             fbxObj.cycles_visibility.camera = int(cyclesParamsDict['ray_vis_camera'] == 'on')
             fbxObj.cycles_visibility.diffuse = int(cyclesParamsDict['ray_vis_diffuse'] == 'on')
