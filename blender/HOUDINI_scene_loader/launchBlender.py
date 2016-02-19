@@ -44,6 +44,7 @@ scene.cycles.use_square_samples = True
 scene.cycles.samples = int(goodParmsDict['samples'])
 scene.cycles.film_transparent = goodParmsDict['transparent'] == 'True'
 scene.cycles.film_exposure = float(goodParmsDict['filmExposure'])
+scene.cycles.blur_glossy = float(goodParmsDict['blurGlossy'])
 
 scene.render.resolution_x = int(goodParmsDict['resolutionX'])
 scene.render.resolution_y = int(goodParmsDict['resolutionY'])
