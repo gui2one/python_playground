@@ -607,6 +607,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         for light in lightList:
 
             lightName = light.getAttribute('name')
+            lightType = light.getAttribute('lightType')
             lightSizeX = light.getAttribute('sizex')
             lightSizeY = light.getAttribute('sizey')
             light_emission_strength = light.getAttribute('emissionStrength')
@@ -630,15 +631,22 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
    
             
             ### create light object
-            lightLight = bpy.data.lamps.new(lightName,'AREA')
+            if lightType == 'grid':
+                lightLight = bpy.data.lamps.new(lightName,'AREA')
+                lightLight.shape = 'RECTANGLE'
+                lightLight.size = float(lightSizeX)
+                lightLight.size_y = float(lightSizeY)                
+            elif lightType == 'sphere':
+                lightLight = bpy.data.lamps.new(lightName,'POINT')
+                lightLight.shadow_soft_size = float(lightSizeX)
 
+
+            lightLight.cycles.use_multiple_importance_sampling = True
             lightObj = bpy.data.objects.new(lightName, lightLight)
             bpy.context.scene.objects.link(lightObj)
 
 
-            lightLight.shape = 'RECTANGLE'
-            lightLight.size = float(lightSizeX)
-            lightLight.size_y = float(lightSizeY)
+
 
             lightLight.use_nodes = True
             lightLight.node_tree.nodes['Emission'].inputs['Strength'].default_value = float(light_emission_strength)
