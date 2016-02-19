@@ -25,7 +25,7 @@ for s in dictString:
     
 
 
-
+scene = D.scenes['Scene']
 bpy.context.scene.conf_path = sceneFilePath
 
 bpy.ops.object.select_all(action='SELECT')
@@ -39,21 +39,21 @@ C.scene.render.engine = 'CYCLES'
 # bpy.ops.script.python_file_run(override,filepath="C:\\Program Files\\Blender Foundation\\Blender\\2.76\\scripts\\presets\\framerate\\25.py")
 
 
-D.scenes['Scene'].cycles.device = goodParmsDict['device']
-D.scenes['Scene'].cycles.use_square_samples = True
-D.scenes['Scene'].cycles.samples = int(goodParmsDict['samples'])
-D.scenes['Scene'].cycles.film_transparent = goodParmsDict['transparent'] == 'True'
-D.scenes['Scene'].cycles.film_exposure = float(goodParmsDict['filmExposure'])
+scene.cycles.device = goodParmsDict['device']
+scene.cycles.use_square_samples = True
+scene.cycles.samples = int(goodParmsDict['samples'])
+scene.cycles.film_transparent = goodParmsDict['transparent'] == 'True'
+scene.cycles.film_exposure = float(goodParmsDict['filmExposure'])
 
-D.scenes['Scene'].render.resolution_x = int(goodParmsDict['resolutionX'])
-D.scenes['Scene'].render.resolution_y = int(goodParmsDict['resolutionY'])
-D.scenes['Scene'].render.resolution_percentage = int(goodParmsDict['resolutionPercentage'])
+scene.render.resolution_x = int(goodParmsDict['resolutionX'])
+scene.render.resolution_y = int(goodParmsDict['resolutionY'])
+scene.render.resolution_percentage = int(goodParmsDict['resolutionPercentage'])
 
-D.scenes['Scene'].render.tile_x =  int(goodParmsDict['tileSize'])
-D.scenes['Scene'].render.tile_y =  int(goodParmsDict['tileSize'])
+scene.render.tile_x =  int(goodParmsDict['tileSize'])
+scene.render.tile_y =  int(goodParmsDict['tileSize'])
 
 
-D.scenes['Scene'].render.use_motion_blur = goodParmsDict['useMotionBlur'] == 'True'
+scene.render.use_motion_blur = goodParmsDict['useMotionBlur'] == 'True'
 
 ### set background Shader
 D.worlds['World'].use_nodes = True
@@ -87,14 +87,34 @@ galere = outputPath[:1]+ ':' + outputPath[1:]
 
 ext = galere.split('.')[-1:][0]
 if ext == 'exr' or ext =='EXR' :
-	D.scenes['Scene'].render.image_settings.file_format = 'OPEN_EXR_MULTILAYER'
+	
+	scene.render.image_settings.file_format = 'OPEN_EXR_MULTILAYER'
+	scene.render.image_settings.color_depth = '32'
+	scene.render.layers['RenderLayer'].use_pass_mist = True
+
+
+	scene.render.layers['RenderLayer'].use_pass_diffuse_color = True
+	scene.render.layers['RenderLayer'].use_pass_diffuse_direct = True
+	scene.render.layers['RenderLayer'].use_pass_diffuse_indirect = True
+
+	scene.render.layers["RenderLayer"].use_pass_glossy_color = True
+	scene.render.layers["RenderLayer"].use_pass_glossy_direct = True
+	scene.render.layers["RenderLayer"].use_pass_glossy_indirect = True
+
+	scene.render.layers["RenderLayer"].use_pass_transmission_color = True
+	scene.render.layers["RenderLayer"].use_pass_transmission_direct = True
+	scene.render.layers["RenderLayer"].use_pass_transmission_indirect = True
+
 elif ext =='png' or ext == 'PNG' :
-	D.scenes['Scene'].render.image_settings.file_format = 'PNG'
+	scene.render.image_settings.file_format = 'PNG'
+	scene.render.image_settings.color_depth = '16'
 elif ext =='tga' or ext == 'TGA' :
-	D.scenes['Scene'].render.image_settings.file_format = 'TARGA'	
+	scene.render.image_settings.file_format = 'TARGA'	
+	# scene.render.image_settings.color_depth = '16'
 else:
 	##default to PNG
-	D.scenes['Scene'].render.image_settings.file_format = 'PNG'
+	scene.render.image_settings.file_format = 'PNG'
+	scene.render.image_settings.color_depth = '16'
 
 extLength = len(ext)
 print ("Saved: -->",galere)
@@ -106,9 +126,9 @@ print ("Saved: -->",galere)
 
 C.scene.render.filepath = galere[:-4]
 
-D.scenes['Scene'].render.image_settings.color_depth = '16'
 
-D.scenes['Scene'].render.use_file_extension =  True
+
+scene.render.use_file_extension =  True
 
 fStart = int(goodParmsDict['fStart'])
 fEnd = int(goodParmsDict['fEnd'])
@@ -120,8 +140,8 @@ if DO_RENDER:
 
 
 
-		C.scene.render.filepath = galere[:-4]+'_'+str(i)+str(ext)
-		D.scenes['Scene'].camera = bpy.data.objects['export_cam1']
+		C.scene.render.filepath = galere[:-4]+'_'+str(i)
+		scene.camera = bpy.data.objects['export_cam1']
 
 		### render
 		bpy.ops.render.render(write_still=True)

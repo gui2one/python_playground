@@ -928,7 +928,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             fbxObj.cycles_visibility.shadow = int(cyclesParamsDict['ray_vis_shadow'] == 'on')
 
 
-
+        fbxObj.rotation_mode = 'XZY'
             
             
       
