@@ -3,8 +3,9 @@ import time
 import sys
 import os
 import xml.dom.minidom as dom
-fbxFilePath = sys.argv[-2]
-xmlFilePath = sys.argv[-1]
+fbxFilePath = sys.argv[-3]
+xmlFilePath = sys.argv[-2]
+isLast = sys.argv[-1] == 'True'
 
 # print ('{gui2one_INFOS:}', fbxFilePath)
 
@@ -453,7 +454,7 @@ if __name__ == "__main__":
         x = createBlendFile()
         bpy.ops.wm.save_mainfile(filepath= fbxFilePath[:-4]+'.blend')
         print("create blend file", bpy)
-        print ('{gui2one_INFOS:} --->',' DONE')  
+        print ('{gui2one_INFOS:} --->',' DONE', 'isLast -->', isLast)  
 
 
 bpy.ops.wm.quit_blender()

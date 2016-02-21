@@ -45,6 +45,8 @@ scene.cycles.samples = int(goodParmsDict['samples'])
 scene.cycles.film_transparent = goodParmsDict['transparent'] == 'True'
 scene.cycles.film_exposure = float(goodParmsDict['filmExposure'])
 scene.cycles.blur_glossy = float(goodParmsDict['blurGlossy'])
+scene.cycles.use_animated_seed = True
+# scene.cycles.feature_set = 'EXPERIMENTAL'
 
 scene.render.resolution_x = int(goodParmsDict['resolutionX'])
 scene.render.resolution_y = int(goodParmsDict['resolutionY'])
@@ -73,7 +75,14 @@ cycles.caustics_refractive = False
 cycles.diffuse_bounces = 3
 cycles.glossy_bounces = 4
 cycles.transmission_bounces = 8
-cycles.volume_bounces = 2
+
+
+doVolumePass = goodParmsDict['volumePass'] == 'True'
+if doVolumePass :
+	cycles.volume_bounces = 0
+else:
+	cycles.volume_bounces = 2
+
 cycles.transparent_min_bounces = 8
 cycles.transparent_max_bounces = 16
 
@@ -125,8 +134,10 @@ print ("Saved: -->",galere)
 
 # goodPath =os.path.join(*sp)
 
-C.scene.render.filepath = galere[:-4]
-
+if doVolumePass :
+	C.scene.render.filepath = galere[:-4]+'_volume'
+else:
+	C.scene.render.filepath = galere[:-4]
 
 
 scene.render.use_file_extension =  True
@@ -140,8 +151,10 @@ if DO_RENDER:
 		
 
 
-
-		C.scene.render.filepath = galere[:-4]+'_'+str(i)
+		if doVolumePass :
+			C.scene.render.filepath = galere[:-4]+'_volume_'+str(i)
+		else:
+			C.scene.render.filepath = galere[:-4]+'_'+str(i)
 		scene.camera = bpy.data.objects['export_cam1']
 
 		### render

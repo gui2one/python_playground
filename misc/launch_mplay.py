@@ -3,7 +3,7 @@ import time
 import glob
 
 waitTime = 0.5
-path = "F:/HOUDINI_15_playground/blender_trees/render/anim/trees_anim_*.png"
+path = "F:/HOUDINI_15_playground/blender_trees/render/anim_04/anim_04_*.png"
 # F:\HOUDINI_15_playground\render\fur_sea
 obj = glob.glob(path)
 newNum = len(obj)
@@ -11,7 +11,7 @@ newNum = len(obj)
 while True:
 	### -T : always on top COMMAND
 	### -minimal 
-	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe -T -p -z 200 -f 1 "+str(newNum)+" 1 -r 25 "+path) 
+	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe -T -p -z 120 -f 1 "+str(newNum)+" 1 -r 25 "+path) 
 	
 
 	# handle = win32gui.FindWindow(None, u"MPlay*")
