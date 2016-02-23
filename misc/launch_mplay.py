@@ -11,7 +11,7 @@ newNum = len(obj)
 while True:
 	### -T : always on top COMMAND
 	### -minimal 
-	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe -T -p -z 120 -f 1 "+str(newNum)+" 1 -r 25 "+path) 
+	process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe -T -minimal -p -z 133 -f 1 "+str(newNum)+" 1 -r 25 "+path) 
 	
 
 	# handle = win32gui.FindWindow(None, u"MPlay*")
