@@ -800,6 +800,9 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             empty.cycles_visibility.scatter = int(cyclesParamsDict['ray_vis_volume_scatter'] == 'on')
             empty.cycles_visibility.shadow = int(cyclesParamsDict['ray_vis_shadow'] == 'on')
 
+            if cyclesParamsDict['display_as_box'] == 'on':
+                empty.draw_type = 'BOUNDS'
+
 
         
 
@@ -1137,6 +1140,9 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
 
         fbxObj.rotation_mode = 'XZY'
+
+        if cyclesParamsDict['display_as_box'] == 'on':
+            fbxObj.draw_type = 'BOUNDS'
             
             
       
