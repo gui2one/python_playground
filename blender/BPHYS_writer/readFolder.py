@@ -20,7 +20,7 @@ filesList = glob.glob('%s/*' % dirname)
 # for item in dir(os.path):
 # 	print item
 
-for file in filesList:
+for file in sorted(filesList):
 	try:
 		dataFile = open(file,'rb')
 	except:
@@ -56,41 +56,50 @@ for file in filesList:
 	elif dataType[2] == 31:
 
 		for i in range(nParticles):
-			##ID
+
 			readId = struct.unpack('I',dataFile.read(4))[0]
 			readPosition = struct.unpack('fff', dataFile.read(12))
 			readRotation = struct.unpack('ffff', dataFile.read(16))
 			readAvelocity = struct.unpack('fff', dataFile.read(12))
 			readVelocity = struct.unpack('fff', dataFile.read(12))
 
-			print 'readId -->' , readId
-			print 'readPosition -->' , readPosition
-			print 'readAvelocity -->' , readAvelocity
-			print 'readVelocity -->' , readVelocity
+			print 'ID -->' , readId
+			print 'Rotation ? --> ', readRotation 
+			print 'Position -->' , readPosition
+			print 'Angular Velocity ? -->' , readAvelocity
+			print 'Velocity -->' , readVelocity
 			print '------------------------------------------------\n\n'
-
-	elif dataType[2] == 7:
-		for i in range(nParticles):
-			data = struct.unpack('I',dataFile.read(4))
-			print data
-			data = struct.unpack('fff',dataFile.read(12))
-			print data	
 
 	elif dataType[2] == 15:
 		for i in range(nParticles):
-			##ID
+
 			readId = struct.unpack('I',dataFile.read(4))[0]
-			readPosition = struct.unpack('fff', dataFile.read(12))
-			readRotation = struct.unpack('ffff', dataFile.read(16))
-			
+			readPosition = struct.unpack('fff', dataFile.read(12))			
 			readVelocity = struct.unpack('fff', dataFile.read(12))
+			readRotation = struct.unpack('ffff', dataFile.read(16))
 
-			print 'readId -->' , readId
-			print 'readPosition -->' , readPosition
-			print 'readRotation -->' , readRotation
-			print 'readVelocity -->' , readVelocity
-			print '------------------------------------------------\n\n'			
+			print 'ID -->' , readId
+			print 'Position -->' , readPosition
+			print 'Velocity -->' , readVelocity
+			print 'Rotation -->' , readRotation			
+			print '------------------------------------------------\n\n'				
 
+	elif dataType[2] == 7:
+		for i in range(nParticles):
+
+			readID = struct.unpack('I',dataFile.read(4))[0]
+			readPosition = struct.unpack('fff',dataFile.read(12))
+			readVelocity = struct.unpack('fff',dataFile.read(12))
+
+			print 'ID --> ',readID			
+			print 'Position --> ',readPosition				
+			print 'Velocity --> ',readVelocity	
+			print '------------------------------------------------\n\n'				
+
+		
+
+	else:
+		print ':::::::::::::::', dataType[2]
 
 	dataFile.close()
 
