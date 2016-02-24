@@ -3,7 +3,7 @@ import time
 import glob
 
 waitTime = 0.5
-path = "F:/HOUDINI_15_playground/blender_trees/render/anim_04/anim_04_*.png"
+path = "F:/HOUDINI_15_playground/blender_trees/render/anim_05/anim_05_*.png"
 # F:\HOUDINI_15_playground\render\fur_sea
 obj = glob.glob(path)
 newNum = len(obj)

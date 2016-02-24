@@ -74,7 +74,22 @@ for file in filesList:
 			data = struct.unpack('I',dataFile.read(4))
 			print data
 			data = struct.unpack('fff',dataFile.read(12))
-			print data			
+			print data	
+
+	elif dataType[2] == 15:
+		for i in range(nParticles):
+			##ID
+			readId = struct.unpack('I',dataFile.read(4))[0]
+			readPosition = struct.unpack('fff', dataFile.read(12))
+			readRotation = struct.unpack('ffff', dataFile.read(16))
+			
+			readVelocity = struct.unpack('fff', dataFile.read(12))
+
+			print 'readId -->' , readId
+			print 'readPosition -->' , readPosition
+			print 'readRotation -->' , readRotation
+			print 'readVelocity -->' , readVelocity
+			print '------------------------------------------------\n\n'			
 
 
 	dataFile.close()
