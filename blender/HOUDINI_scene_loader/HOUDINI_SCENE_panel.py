@@ -703,6 +703,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         objList = xmlData.firstChild.getElementsByTagName('object')
         lightList = xmlData.firstChild.getElementsByTagName('light')
         instanceList = xmlData.firstChild.getElementsByTagName('instance')
+        pSysList = xmlData.firstChild.getElementsByTagName('particleSystem')
 
 
 
@@ -1143,8 +1144,34 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
         if cyclesParamsDict['display_as_box'] == 'on':
             fbxObj.draw_type = 'BOUNDS'
-            
-            
+
+        ### END import objects
+
+        ### IMPORT particle Systems
+
+        for pSys in pSysList:
+            print('gui2one_INFOS:',pSys)
+
+            mesh = bpy.data.meshes.new(pSys.getAttribute('name')+'_mesh')
+            object = bpy.data.objects.new(pSys.getAttribute('name'),mesh)
+            nParticles = pSys.getAttribute('nParticles') 
+
+            bpy.context.scene.objects.link(object)
+            bpy.context.scene.objects.active = object
+
+            bpy.ops.object.particle_system_add()
+            active = bpy.context.active_object
+
+            settings = active.particle_systems[0].settings
+            cache = active.particle_systems[0].point_cache
+
+            settings.frame_start = 1
+            settings.count = int(nParticles)
+
+            cache.use_external = True
+            cache.filepath = pSys.getAttribute('cachePath')
+            cache.index = 0
+            cache.name = 'houdini_cache'            
       
 
 
