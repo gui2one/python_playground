@@ -57,6 +57,13 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         D = bpy.data
         C = bpy.context
 
+        ## before deleting materials with no users, add material to particles objects, if any
+        ###  I need to do it before the fbx thingies, because shader is not embeded with particle object, unlike fbx objects
+
+
+
+
+
         ## clean materials with no users
         mats = D.materials
         for mat in mats:
@@ -89,6 +96,13 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         xmlData = dom.parse(xmlFile)
         materialList = xmlData.firstChild.getElementsByTagName('materials')[0]
         doMatteShading = xmlData.firstChild.getElementsByTagName('sceneOptions')[0].getAttribute('volumePass') == 'True'
+
+        particles = xmlData.firstChild.getElementsByTagName('particles')[0]
+        pSysList = particles.getElementsByTagName('particleSystem')
+
+
+
+
         for material in materialList.getElementsByTagName('material'):
             materialName = material.getAttribute('name')
             cyclesParamsDict = {}
@@ -108,8 +122,141 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
         for obj in D.objects:
             # print ("material_slot -->",obj.material_slots.__len__())
-            for slot in obj.material_slots:               
-                slot.material = D.materials[ slot.material.name.split('.')[0]+'.001' ]
+            for slot in obj.material_slots:           
+                try :    
+                    slot.material = D.materials[ slot.material.name.split('.')[0]+'.001' ]
+                except:
+                    pass
+
+
+        for pSys in pSysList:
+            
+            cyclesParams = pSys.getElementsByTagName('cyclesParams')[0]
+            renderType = cyclesParams.getElementsByTagName('particles_render_type')[0].getAttribute('value')
+
+            alphaRampNode = pSys.getElementsByTagName('alphaRamp')
+            doLifeToAlpha = len(alphaRampNode) == 1 
+
+            scaleRampNode = pSys.getElementsByTagName('scaleRamp')
+            doLifeToScale = len(scaleRampNode) == 1             
+            # print('gui2one_INFOS:','alphaRampNode---->',alphaRampNode)
+            # print('gui2one_INFOS:','doLifeToAlpha---->',doLifeToAlpha)
+            # print('gui2one_INFOS:','---->',renderType)
+
+            particlesMatName = ''
+            if renderType == 'Sphere':
+                materialName = pSys.getAttribute('materialName')
+                print('gui2one_INFOS:','---->',materialName)
+                ## assign material to "*geo_instance"
+                particleObject = D.objects[pSys.getAttribute('name')+'_geo_instance']
+                print('gui2one_INFOS:','---->',particleObject)
+                particleObject.data.materials.append( D.materials[ materialName])
+                particlesMatName = materialName
+
+            elif renderType == 'Instance Object' :
+                sourceObject = bpy.data.objects[pSys.getAttribute('instanceObjectName')]
+                # print('gui2one_INFOS:','sourceObject---->',sourceObject.material_slots[0]) 
+
+                if len(sourceObject.material_slots) > 0 :
+                    particlesMatName = sourceObject.material_slots[0].material.name                
+
+            if doLifeToAlpha :
+
+                rampKeys = alphaRampNode[0].getAttribute('keys').strip('()').split(',')
+                rampLookup = alphaRampNode[0].getAttribute('lookup')
+                ### add cycles nodes to treat particles infos
+                
+                mat = bpy.data.materials[particlesMatName]
+                rampNode = mat.node_tree.nodes.new(type='ShaderNodeValToRGB')
+
+                # print('gui2one_INFOS:','mat---->',rampNode.color_ramp.elements)
+                # print('gui2one_INFOS:','rampKeys---->',rampKeys)
+                # print('gui2one_INFOS:','rampLookup---->',rampLookup)
+
+
+                lookupString = rampLookup.strip('[ ]')
+                lookupString = str(lookupString).split(',')
+                lookupList = [string.strip('( )') for string in lookupString]
+                print('gui2one_INFOS:','lookupList---->', lookupList)
+
+                ### convert to a vector list ( colors)
+                colorsList = []
+                for i in range(0,int(len(lookupList) / 3)):
+                    colorTuple = ( float(lookupList[i*3]),  float(lookupList[(i*3)+1]) , float(lookupList[(i*3)+2]), 1.0)
+                    colorsList.append(colorTuple)
+                    # print('gui2one_INFOS:','colorTuple---->', colorTuple)
+
+                ### add enough elements to color_ramp ( e.g cursors in UI )
+
+                for i in range(0, len(rampKeys)-2) :
+                    rampNode.color_ramp.elements.new(0.5)
+                for i, key in enumerate(rampKeys):
+                    rampNode.color_ramp.elements[i].position = float(key)
+                    rampNode.color_ramp.elements[i].color = colorsList[i]
+                    
+
+            if doLifeToScale :
+
+                rampKeys = scaleRampNode[0].getAttribute('keys').strip('()').split(',')
+                rampLookup = scaleRampNode[0].getAttribute('lookup')
+                ### add cycles nodes to treat particles infos
+                
+                tex = bpy.data.textures.new('life_to_scale_ramp', type='BLEND')
+                tex.use_color_ramp = True
+                # tex.color_ramp.elements.new(0.5)
+                print('gui2one_INFOS:','tex---->', tex.color_ramp.elements[0])
+
+
+                # print('gui2one_INFOS:','mat---->',rampNode.color_ramp.elements)
+                # print('gui2one_INFOS:','rampKeys---->',rampKeys)
+                # print('gui2one_INFOS:','rampLookup---->',rampLookup)
+
+
+                lookupString = rampLookup.strip('[ ]')
+                lookupString = str(lookupString).split(',')
+                lookupList = [string.strip('( )') for string in lookupString]
+                print('gui2one_INFOS:','lookupList---->', lookupList)
+
+                ### convert to a vector list ( colors)
+                colorsList = []
+                for i in range(0,int(len(lookupList) / 3)):
+                    colorTuple = ( float(lookupList[i*3]),  float(lookupList[(i*3)+1]) , float(lookupList[(i*3)+2]), 1.0)
+                    colorsList.append(colorTuple)
+                    # print('gui2one_INFOS:','colorTuple---->', colorTuple)
+
+                ### add enough elements to color_ramp ( e.g cursors in UI )
+
+                for i in range(0, len(rampKeys)-2) :
+                    tex.color_ramp.elements.new(0.5)
+                for i, key in enumerate(rampKeys):
+                    tex.color_ramp.elements[i].position = float(key)
+                    tex.color_ramp.elements[i].color = colorsList[i]  
+
+                particlesObject = bpy.data.objects[ pSys.getAttribute('name') ]
+                particleSystem = particlesObject.particle_systems[0]
+                settings = particleSystem.settings
+
+
+
+                settings.active_texture = tex    
+                print('gui2one_INFOS:','particlesObject---->', settings.texture_slots[0].name)
+
+                settings.texture_slots[0].texture_coords = 'STRAND'
+                settings.texture_slots[0].use_map_time = False
+                settings.texture_slots[0].use_map_size = True
+
+
+                ## reload particle cache after all these modifications because it tends to become unvalid
+                cache = particleSystem.point_cache
+                cache.filepath = pSys.getAttribute('cachePath')                
+
+
+                
+
+
+
+
+
 
         ## finally : reclean materials with no users
         mats = D.materials
@@ -763,46 +910,54 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         for instance in instanceList:
             sourceObjectName = instance.getAttribute('sourceObjectName')
             name = instance.getAttribute('name')
+            instType = instance.getAttribute('type')
+
             cyclesParams =  instance.getElementsByTagName('cyclesParams')[0]
 
+            ## check if some particles params exists
+            partParamTest = cyclesParams.getElementsByTagName('particles_render_type')
+            if partParamTest : 
+                print('gui2one_INFOS:',partParamTest)
+            else:
+                print('gui2one_INFOS:',partParamTest)
 
 
-            bpy.ops.object.empty_add(type='PLAIN_AXES', radius=1, view_align=False, location=(0, 0, 0))
-            empty = bpy.context.active_object
-            bpy.context.object.dupli_type = 'GROUP'
-            bpy.context.object.dupli_group = bpy.data.groups[sourceObjectName]
+                bpy.ops.object.empty_add(type='PLAIN_AXES', radius=1, view_align=False, location=(0, 0, 0))
+                empty = bpy.context.active_object
+                bpy.context.object.dupli_type = 'GROUP'
+                bpy.context.object.dupli_group = bpy.data.groups[sourceObjectName]
 
-            empty.name = '%s_dummy' % (name)
+                empty.name = '%s_dummy' % (name)
 
-            transforms = instance.getElementsByTagName('transforms')[0]
-            rotation = transforms.getAttribute('rotation').strip('[,]').split(',')
-            translation = transforms.getAttribute('translation').strip('[,]').split(',')
+                transforms = instance.getElementsByTagName('transforms')[0]
+                rotation = transforms.getAttribute('rotation').strip('[,]').split(',')
+                translation = transforms.getAttribute('translation').strip('[,]').split(',')
 
-            empty.rotation_mode = 'QUATERNION' 
-            empty.rotation_quaternion[0] = float(rotation[3]) ##W
-            empty.rotation_quaternion[1] = float(rotation[0]) ##X
-            empty.rotation_quaternion[2] = float(rotation[1]) ##Y
-            empty.rotation_quaternion[3] = float(rotation[2]) ##Z       
+                empty.rotation_mode = 'QUATERNION' 
+                empty.rotation_quaternion[0] = float(rotation[3]) ##W
+                empty.rotation_quaternion[1] = float(rotation[0]) ##X
+                empty.rotation_quaternion[2] = float(rotation[1]) ##Y
+                empty.rotation_quaternion[3] = float(rotation[2]) ##Z       
 
-            empty.location[0] = float(translation[0])
-            empty.location[1] = float(translation[1])
-            empty.location[2] = float(translation[2])         
+                empty.location[0] = float(translation[0])
+                empty.location[1] = float(translation[1])
+                empty.location[2] = float(translation[2])         
 
-            cyclesParamsDict = {}
-            for child in cyclesParams.childNodes:
-                if child.nodeType == 1: ######### ???
-                    cyclesParamsDict[child.nodeName] = child.getAttribute('value')
-            
+                cyclesParamsDict = {}
+                for child in cyclesParams.childNodes:
+                    if child.nodeType == 1: ######### ???
+                        cyclesParamsDict[child.nodeName] = child.getAttribute('value')
+                
 
-            empty.cycles_visibility.camera = int(cyclesParamsDict['ray_vis_camera'] == 'on')
-            empty.cycles_visibility.diffuse = int(cyclesParamsDict['ray_vis_diffuse'] == 'on')
-            empty.cycles_visibility.glossy = int(cyclesParamsDict['ray_vis_glossy'] == 'on')
-            empty.cycles_visibility.transmission = int(cyclesParamsDict['ray_vis_transmission'] == 'on')
-            empty.cycles_visibility.scatter = int(cyclesParamsDict['ray_vis_volume_scatter'] == 'on')
-            empty.cycles_visibility.shadow = int(cyclesParamsDict['ray_vis_shadow'] == 'on')
+                empty.cycles_visibility.camera = int(cyclesParamsDict['ray_vis_camera'] == 'on')
+                empty.cycles_visibility.diffuse = int(cyclesParamsDict['ray_vis_diffuse'] == 'on')
+                empty.cycles_visibility.glossy = int(cyclesParamsDict['ray_vis_glossy'] == 'on')
+                empty.cycles_visibility.transmission = int(cyclesParamsDict['ray_vis_transmission'] == 'on')
+                empty.cycles_visibility.scatter = int(cyclesParamsDict['ray_vis_volume_scatter'] == 'on')
+                empty.cycles_visibility.shadow = int(cyclesParamsDict['ray_vis_shadow'] == 'on')
 
-            if cyclesParamsDict['display_as_box'] == 'on':
-                empty.draw_type = 'BOUNDS'
+                if cyclesParamsDict['display_as_box'] == 'on':
+                    empty.draw_type = 'BOUNDS'
 
 
         
@@ -1150,8 +1305,29 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
         ### IMPORT particle Systems
 
         for pSys in pSysList:
-            print('gui2one_INFOS:',pSys)
+            
 
+            cyclesParams = pSys.getElementsByTagName('cyclesParams')        
+            cyclesParamsDict = {}
+            for child in cyclesParams[0].childNodes:
+                if child.nodeType == 1: ######### ???
+                    cyclesParamsDict[child.nodeName] = child.getAttribute('value')
+
+            if cyclesParamsDict['particles_render_type'] == 'Sphere' :
+                bpy.ops.mesh.primitive_uv_sphere_add(size=1, view_align=False, enter_editmode=False, location=(0, 0, 0))
+                pSphere = bpy.context.active_object
+                bpy.context.object.layers[1] = True
+                bpy.context.object.layers[0] = False
+
+                pSphere.name = pSys.getAttribute('name')+'_geo_instance'
+                # print('gui2one_INFOS:',pSphere.name)
+
+            elif cyclesParamsDict['particles_render_type'] == 'Instance Object' :
+                pass
+                # particleInstanceObj = bpy.ops.import_scene.fbx(filepath=fbxFilePath, global_scale=100, use_image_search=False)
+
+
+            ### creates an object to put particle system on 
             mesh = bpy.data.meshes.new(pSys.getAttribute('name')+'_mesh')
             object = bpy.data.objects.new(pSys.getAttribute('name'),mesh)
             nParticles = pSys.getAttribute('nParticles') 
@@ -1167,11 +1343,31 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
             settings.frame_start = 1
             settings.count = int(nParticles)
+            settings.render_type = 'OBJECT'
+
+            if cyclesParamsDict['particles_render_type'] == 'Sphere' :
+                settings.dupli_object = pSphere
+                # print('gui2one_INFOS:',pSys.getAttribute('materialName'))
+            elif cyclesParamsDict['particles_render_type'] == 'Instance Object' :
+                settings.dupli_object = bpy.data.objects[pSys.getAttribute('instanceObjectName')]
+
+
+            settings.particle_size = float(cyclesParamsDict['particles_scale'])
+            settings.size_random = float(cyclesParamsDict['particles_random_scale'])
+
 
             cache.use_external = True
             cache.filepath = pSys.getAttribute('cachePath')
             cache.index = 0
-            cache.name = 'houdini_cache'            
+            cache.name = 'houdini_cache'     
+
+            pObject = active
+            pObject.cycles_visibility.camera = cyclesParamsDict['ray_vis_camera'] == 'on'
+            pObject.cycles_visibility.diffuse = cyclesParamsDict['ray_vis_diffuse'] == 'on'
+            pObject.cycles_visibility.glossy = cyclesParamsDict['ray_vis_glossy'] == 'on'
+            pObject.cycles_visibility.transmission = cyclesParamsDict['ray_vis_transmission'] == 'on'
+            pObject.cycles_visibility.scatter = cyclesParamsDict['ray_vis_volume_scatter'] == 'on'
+            pObject.cycles_visibility.shadow = cyclesParamsDict['ray_vis_shadow'] == 'on'
       
 
 

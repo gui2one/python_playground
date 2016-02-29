@@ -115,6 +115,10 @@ if ext == 'exr' or ext =='EXR' :
 	scene.render.layers["RenderLayer"].use_pass_transmission_direct = True
 	scene.render.layers["RenderLayer"].use_pass_transmission_indirect = True
 
+	scene.render.layers["RenderLayer"].use_pass_emit = True
+
+
+
 elif ext =='png' or ext == 'PNG' :
 	scene.render.image_settings.file_format = 'PNG'
 	scene.render.image_settings.color_depth = '16'
