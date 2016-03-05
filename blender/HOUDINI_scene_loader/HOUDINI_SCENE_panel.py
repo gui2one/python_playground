@@ -1405,12 +1405,16 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 fbxObj = bpy.context.scene.objects[objName]
                 fbxObj.data.use_auto_smooth = False     
 
-                #### materials
+                fbxObj.material_slots[0].material = bpy.data.materials[fbxObj.material_slots[0].material.name.split('.')[0]]  
+                # #### materials
                 # try:
                 #     if len(fbxObj.data.materials) != 0:
                 #         fbxObj.data.materials[0] = bpy.data.materials[objName]
+
                 #     else:    
-                #         fbxObj.data.materials.append(bpy.data.materials[objName])
+                #         # fbxObj.data.materials.append(bpy.data.materials[objName])
+                #         # fbxObj.data.materials[0] = bpy.data.material[fbxObj.data.materials[0].name.split(".")[0]]
+                #         fbxObj.material_slots[0] = bpy.data.materials[ fbxObj.material_slots[0].material.name.split('.')[0]]
                 # except:
                 #     pass                           
                     
