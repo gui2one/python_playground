@@ -3,45 +3,41 @@ from urllib import urlencode
 import xml.dom.minidom as dom
 
 key = 'WJM174VR6TEIZRQ'
-
-
 cmd = 'getbikestations'
 
 stationNum = 23 ### station velo rotonde
-enc = urlencode({"cmd":cmd,"param[station]":'number', "param[value]":stationNum, "key":key, "version":2.0})
+enc = urlencode({"cmd":cmd, "key":key, "version":2.0})
 # print enc
 url = 'http://data.keolis-rennes.com/xml/?'+enc+''
 
 data = urllib.urlopen(url)
-rotondeData = data.read()
+stationsData = data.read()
 data.close()
 
+stationsXmlData = dom.parseString(stationsData)
 
 
 
-stationNum = 37 ## station auberge de jeunesse
-enc = urlencode({"cmd":cmd,"param[station]":'number', "param[value]":stationNum, "key":key, "version":2.0})
-url = 'http://data.keolis-rennes.com/xml/?'+enc+''
 
-data = urllib.urlopen(url)
-canalData =  data.read()
-data.close()
+for element in stationsXmlData.getElementsByTagName('number'):
+	## ROTONDE
+	if element.firstChild.nodeValue == '23':
+		stationRotondeNode = element.parentNode
+
+	### canal / auberge de jeunesse
+	elif element.firstChild.nodeValue == '37':
+		stationCanalNode = element.parentNode
 
 
-rotondeXmlData =  dom.parseString(rotondeData)
+
 print 'Rotonde / Redon'
-bikesAvailable = rotondeXmlData.getElementsByTagName('bikesavailable')[0].firstChild.nodeValue
-slotsAvailable = rotondeXmlData.getElementsByTagName('slotsavailable')[0].firstChild.nodeValue
-print 'Velos Libres :',bikesAvailable
-print 'Emplacements Libres :',slotsAvailable
-print '-------------------------------\n'
+print '----------------------------------'
+print 'Velos Libres : ', stationRotondeNode.getElementsByTagName('bikesavailable')[0].firstChild.nodeValue
+print 'Emplacements Disponibles :', stationRotondeNode.getElementsByTagName('slotsavailable')[0].firstChild.nodeValue
+print '----------------------------------\n'
 
-
-
-xmlData =  dom.parseString(canalData)
-print 'Auberge de jeunesse / Canal'
-bikesAvailable = xmlData.getElementsByTagName('bikesavailable')[0].firstChild.nodeValue
-slotsAvailable = xmlData.getElementsByTagName('slotsavailable')[0].firstChild.nodeValue
-print 'Velos Libres :',bikesAvailable
-print 'Emplacements Libres :',slotsAvailable
-print '-------------------------------\n'
+print 'Canal / Auberge de Jeunesse'
+print '----------------------------------'
+print 'Velos Libres : ', stationCanalNode.getElementsByTagName('bikesavailable')[0].firstChild.nodeValue
+print 'Emplacements Disponibles :', stationCanalNode.getElementsByTagName('slotsavailable')[0].firstChild.nodeValue
+print '----------------------------------\n'
