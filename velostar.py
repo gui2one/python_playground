@@ -3,6 +3,36 @@ from urllib import urlencode
 import xml.dom.minidom as dom
 import sys
 
+import time
+import datetime
+
+
+
+print 
+
+timeStampString = '2016-03-15T13:49:09+01:00'
+dateString = timeStampString.split('T')[0]
+timeString = timeStampString.split('T')[1]
+timeString = timeString.split('+')[0]
+timeString = timeString.split('-')[0]
+
+hours = int(timeString.split(':')[0])
+minutes = int(timeString.split(':')[1])
+seconds =int(timeString.split(':')[2])
+
+
+now = time.localtime(time.time())
+
+nowHours = now[3]
+nowMinutes = now[4]
+nowSeconds = now[5]
+
+
+print dateString
+print timeString, hours, minutes, seconds
+
+print nowMinutes - minutes
+
 key = 'WJM174VR6TEIZRQ'
 cmd = 'getbikestations'
 
