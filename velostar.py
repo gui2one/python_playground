@@ -2,36 +2,41 @@ import urllib
 from urllib import urlencode
 import xml.dom.minidom as dom
 import sys
-
+import numpy as np
 import time
-import datetime
+from datetime import datetime
 
 
 
-print 
+# testTime = time.struct_time(tm_year=2016, tm_month=3, tm_mday=15, tm_hour=17, tm_min=25,tm_sec=0, tm_wday=2, tm_yday=0,tm_isdst=1)
 
-timeStampString = '2016-03-15T13:49:09+01:00'
-dateString = timeStampString.split('T')[0]
-timeString = timeStampString.split('T')[1]
-timeString = timeString.split('+')[0]
-timeString = timeString.split('-')[0]
+# # formattedTime = time.mktime(testTime)
+# print formattedTime 
+def infoTime(timeStamp):
+	# timeStampString = '2016-03-15T17:43:09+01:00'
+	timeStampString = timeStamp
+	dateString = timeStampString.split('T')[0]
+	timeString = timeStampString.split('T')[1]
+	timeString = timeString.split('+')[0]
+	timeString = timeString.split('-')[0]
 
-hours = int(timeString.split(':')[0])
-minutes = int(timeString.split(':')[1])
-seconds =int(timeString.split(':')[2])
-
-
-now = time.localtime(time.time())
-
-nowHours = now[3]
-nowMinutes = now[4]
-nowSeconds = now[5]
+	hours = int(timeString.split(':')[0])
+	minutes = int(timeString.split(':')[1])
+	seconds =int(timeString.split(':')[2])
 
 
-print dateString
-print timeString, hours, minutes, seconds
+	now = time.localtime(time.time())
+	nowHours = now[3]
+	nowMinutes = now[4]
+	nowSeconds = now[5]
 
-print nowMinutes - minutes
+	minutesAgo = 0.0
+
+	minutesAgo += (nowHours - hours)*60.0
+	minutesAgo += (nowMinutes - minutes)
+
+	stringOut = '%s minutes ago' % (minutesAgo)
+	return stringOut
 
 key = 'WJM174VR6TEIZRQ'
 cmd = 'getbikestations'
@@ -106,6 +111,7 @@ for element in stationsXmlData.getElementsByTagName('state'):
 	parent = element.parentNode
 	name = parent.getElementsByTagName("name")[0].firstChild.nodeValue
 	state = parent.getElementsByTagName("state")[0].firstChild.nodeValue
+	
 	states[name] = state
 
 # for item in states:
@@ -113,16 +119,20 @@ for element in stationsXmlData.getElementsByTagName('state'):
 	
 
 
-
+rotondeLastUpdate = infoTime( stationRotondeNode.getElementsByTagName('lastupdate')[0].firstChild.nodeValue  )
 
 print 'Rotonde / Redon'
 print '----------------------------------'
 print 'Velos Libres : ', stationRotondeNode.getElementsByTagName('bikesavailable')[0].firstChild.nodeValue
 print 'Emplacements Disponibles :', stationRotondeNode.getElementsByTagName('slotsavailable')[0].firstChild.nodeValue
+print rotondeLastUpdate
 print '----------------------------------\n'
 
+
+canalLastUpdate = infoTime( stationCanalNode.getElementsByTagName('lastupdate')[0].firstChild.nodeValue  )
 print 'Canal / Auberge de Jeunesse'
 print '----------------------------------'
 print 'Velos Libres : ', stationCanalNode.getElementsByTagName('bikesavailable')[0].firstChild.nodeValue
 print 'Emplacements Disponibles :', stationCanalNode.getElementsByTagName('slotsavailable')[0].firstChild.nodeValue
+print canalLastUpdate
 print '----------------------------------\n'
