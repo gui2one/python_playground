@@ -12,18 +12,24 @@ from PySide import QtGui
 
 SRCPATH = "F:/HOUDINI_CONFIG/OTLs"
 DSTPATH = "F:/TEMP"
+LOCALPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 class HDAManager(QtGui.QWidget):
     
     def __init__(self):
       super(HDAManager, self).__init__()
       
+      self.loadPaths()
       self.initUI()
         
     def initUI(self):
 
       global SRCPATH
       global DSTPATH
+
+      global LOCALPATH
+
+      
 
       QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
       
@@ -45,6 +51,11 @@ class HDAManager(QtGui.QWidget):
       btnSrc.resize(btnSrc.sizeHint())
       btnSrc.move(10, 10)       
       btnSrc.clicked.connect(lambda: self.feedSrcList())
+
+      btnSrcRefresh = QtGui.QPushButton('Refresh', self)
+      btnSrcRefresh.resize(btnSrcRefresh.sizeHint())
+      btnSrcRefresh.move(160, 10)       
+      btnSrcRefresh.clicked.connect(lambda: self.refreshSrcList())      
 
       self.labelSrc = QtGui.QLabel(self)
       self.labelSrc.setText(SRCPATH)
@@ -72,6 +83,10 @@ class HDAManager(QtGui.QWidget):
       self.btnDst.move(350, 10)       
       self.btnDst.clicked.connect(lambda: self.feedDstList())      
 
+      btnDstRefresh = QtGui.QPushButton('Refresh', self)
+      btnDstRefresh.resize(btnDstRefresh.sizeHint())
+      btnDstRefresh.move(500, 10)       
+      btnDstRefresh.clicked.connect(lambda: self.refreshDstList())      
 
 
       self.btnCopy = QtGui.QPushButton('>>', self)
@@ -165,6 +180,31 @@ class HDAManager(QtGui.QWidget):
               model.appendRow(item)
 
       self.listSrc.setModel(model)
+      self.savePaths()
+
+    def refreshSrcList(self) :
+
+      global SRCPATH
+
+      srcFolderPath = SRCPATH
+
+      self.labelSrc.setText(SRCPATH)
+
+      os.chdir(srcFolderPath) # sets the working directory
+      fileNames = glob("*")  
+        # print fileNames           
+      model = QtGui.QStandardItemModel(self.listSrc)
+      for afile in fileNames :
+        # print str(afile.endswith("hdalc"))
+        if os.path.isfile(afile) :
+            if afile.endswith("otl") | afile.endswith("hdalc") :
+              item = QtGui.QStandardItem(afile)
+              # item.setCheckable(True)
+              item.setToolTip('self')
+
+              model.appendRow(item)
+
+      self.listSrc.setModel(model)
 
  
     def feedDstList(self) :
@@ -199,6 +239,30 @@ class HDAManager(QtGui.QWidget):
 
       self.listDst.setModel(model)     
 
+      self.savePaths()
+
+    def refreshDstList(self) :
+      global DSTPATH
+
+      dstFolderPath = DSTPATH
+
+      self.labelDst.setText(DSTPATH)
+
+      os.chdir(dstFolderPath) # sets the working directory
+      fileNames = glob("*")  
+        # print fileNames           
+      model = QtGui.QStandardItemModel(self.listDst)
+      for afile in fileNames :
+        print str(afile.endswith("hdalc"))
+        if os.path.isfile(afile) :
+            if afile.endswith("otl") | afile.endswith("hdalc") :
+              item = QtGui.QStandardItem(afile)
+              # item.setCheckable(True)
+              item.setToolTip('self')
+
+              model.appendRow(item)
+
+      self.listDst.setModel(model)    
 
      
     def resizeEvent(self,event):
@@ -215,7 +279,34 @@ class HDAManager(QtGui.QWidget):
       self.btnDst.move(width1 + 40.0,10.0 )
 
 
+    def savePaths(self):
 
+      global LOCALPATH
+      
+      os.chdir(LOCALPATH)
+      f = open('paths.txt','w')
+
+      f.write(SRCPATH)
+      f.write(';')
+      f.write(DSTPATH)
+      print("saved Paths" + str(f) + LOCALPATH)
+      f.close()
+
+    def loadPaths(self):
+      global LOCALPATH
+      global SRCPATH
+      global DSTPATH
+
+      os.chdir(LOCALPATH)
+      if os.path.isfile(os.path.join(LOCALPATH, 'paths.txt')):
+        f = open('paths.txt','r')
+        data = f.read().split(';')
+        SRCPATH = data[0]
+        DSTPATH = data[1]
+      else:
+        print 'no file to open'
+
+      
 
 def main():
     
