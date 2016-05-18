@@ -7,7 +7,7 @@ import os
 
 D = bpy.data
 C = bpy.context
-sceneFilePath = sys.argv[-3] # start from the end: these are 'trailing' parameters to the command blender.exe and ITS parameters
+sceneFilePath = sys.argv[-3] # start from the end: these are 'trailing' parameters to the command blender.exe and its parameters
 DO_RENDER = int(sys.argv[-2])
 parmsDict = sys.argv[-1]
 
@@ -46,7 +46,12 @@ scene.cycles.film_transparent = goodParmsDict['transparent'] == 'True'
 scene.cycles.film_exposure = float(goodParmsDict['filmExposure'])
 scene.cycles.blur_glossy = float(goodParmsDict['blurGlossy'])
 scene.cycles.use_animated_seed = True
-# scene.cycles.feature_set = 'EXPERIMENTAL'
+
+if goodParmsDict['experimental'] == 'True':
+
+	scene.cycles.feature_set = 'EXPERIMENTAL'
+else:
+	scene.cycles.feature_set = 'SUPPORTED'
 
 scene.render.resolution_x = int(goodParmsDict['resolutionX'])
 scene.render.resolution_y = int(goodParmsDict['resolutionY'])

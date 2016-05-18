@@ -7,76 +7,7 @@ import threading
 import re
 import os
 
-# class My_Thread(threading.Thread):
 
-#     def __init__(self):
-# 		threading.Thread.__init__(self)
-# 		self.process = None
-# 		self.MY_GLOBAL = False
-# 		self.CANCELED = False
-# 		self.MPLAY_process = None        
-
-#     def run(self):
-
-# 		print "Starting " + self.name
-# 		self.CANCELED = False
-# 		bBreak = False
-# 		path = "F:/BLENDER_playground/*.png"
-# 		# F:\HOUDINI_15_playground\render\fur_sea
-# 		obj = glob.glob(path)
-# 		newNum = len(obj)
-
-
-# 		while True:
-# 			'''command options *
-# 				-T : always on top
-
-# 			'''
-# 			self.MPLAY_process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe -minimal -p -z 100 -f 1 "+str(newNum)+" 1 -r 25 F:/BLENDER_playground/*.png",shell=False,stdin=subprocess.PIPE,stdout=subprocess.PIPE) 
-
-
-# 			# print handle
-# 			obj  = glob.glob(path)
-# 			num = len(obj)
-# 			oldNum = num
-			
-
-# 			bBreak = self.CANCELED
-# 			while not bBreak :
-
-# 				bBreak = self.MY_GLOBAL
-# 				newNum = len(glob.glob(path))
-# 				print newNum
-# 				if newNum > oldNum :
-# 					print "new file detected"
-# 					bBreak = True
-
-# 				else:
-# 					n = 0.01
-# 					print ("sleep %s minutes" % (n))
-# 					print ('break -->', bBreak)
-# 					# print process.stdin
-# 					time.sleep(60*n)
-
-			
-# 			print num
-
-# 			#time.sleep(60*10)
-# 			try:
-# 				self.MPLAY_process.kill()
-# 				if self.CANCELED:
-# 					print "exit while loop"
-# 					bBreak = False
-# 					break
-# 			except:
-# 				print "no process to kill -- continuing"
-# 		print "Exiting " + self.name
-
-#     def stop(self):
-#         print "Trying to stop thread "
-#         if self.process is not None:
-#             self.process.terminate()
-#             self.process = None
 
 
 class myClass(QtGui.QMainWindow):
@@ -105,7 +36,13 @@ class myClass(QtGui.QMainWindow):
 		self.cancelButton.move(10,60)
 		self.cancelButton.hide()
 
+		self.minimalToggle = QtGui.QCheckBox("minimal",self)
+		self.minimalToggle.move(10,100)
+		#self.minimalToggle.clicked.connect(lambda :self.talk("hello"))
 
+		self.testButton = QtGui.QPushButton('test', self)	
+		self.testButton.clicked.connect(lambda :self.test())
+		self.testButton.move(10,120)
 
 		
 
@@ -197,7 +134,13 @@ class myClass(QtGui.QMainWindow):
 				-T : always on top
 				-minimal 
 			'''
-			self.MPLAY_process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe -minimal  -p -z 200 -f 1 "+str(newNum)+" 1 -r 25 "+self.SRCPATH,
+
+			if self.minimalToggle.isChecked() :
+				doMinimal = '-minimal'
+			else:
+				doMinimal = ''
+
+			self.MPLAY_process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe "+doMinimal+" -p -z 100 -f 1 "+str(newNum)+" 1 -r 25 "+self.SRCPATH,
 										shell=False,
 										stdin=subprocess.PIPE,
 										stdout=subprocess.PIPE) 
@@ -219,7 +162,7 @@ class myClass(QtGui.QMainWindow):
 					bBreak = True
 
 				else:
-					n = 0.01
+					n = 5
 					#print ("sleep %s minutes" % (n))
 					#print ('break -->', bBreak)
 					# print process.stdin
@@ -239,6 +182,8 @@ class myClass(QtGui.QMainWindow):
 				print "no process to kill -- continuing"
 
 			
+	def test(self):
+		print self.minimalToggle.isChecked()
 
 
 if __name__ == '__main__':

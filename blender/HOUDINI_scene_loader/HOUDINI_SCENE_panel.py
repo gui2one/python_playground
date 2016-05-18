@@ -493,6 +493,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             
 
             groupNode.inputs["roughness"].default_value = float(cyclesParamsDict['roughness'])
+            groupNode.inputs["refractionRoughness"].default_value = float(cyclesParamsDict['refraction_roughness'])
             groupNode.inputs["diffuseColor"].default_value = (float(cyclesParamsDict['diffuse_colorr']),float(cyclesParamsDict['diffuse_colorg']), float(cyclesParamsDict['diffuse_colorb']),1.0)
             groupNode.inputs["glossyColor"].default_value = (float(cyclesParamsDict['glossy_colorr']),float(cyclesParamsDict['glossy_colorg']), float(cyclesParamsDict['glossy_colorb']),1.0)
             groupNode.inputs["fresnelMult"].default_value = float(cyclesParamsDict['fresnel_mult'])
@@ -837,6 +838,8 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 groupNode.inputs['vertexColorMult'] .default_value = 0.0             
                 groupNode.inputs['translucentColorMult'] .default_value = 0.0             
                 groupNode.inputs['translucentTextureMult'] .default_value = 0.0  
+
+
         return mat
 
     
@@ -971,6 +974,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             lightSizeY = light.getAttribute('sizey')
             light_emission_strength = light.getAttribute('emissionStrength')
             light_color  = light.getAttribute('color').split(',')
+            portal  = light.getAttribute('portal') == 'on'
 
 
 
@@ -987,6 +991,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
             isLightAnimated = light.getAttribute('isAnimated') == 'True'
             
+
    
             
             ### create light object
@@ -994,7 +999,9 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
                 lightLight = bpy.data.lamps.new(lightName,'AREA')
                 lightLight.shape = 'RECTANGLE'
                 lightLight.size = float(lightSizeX)
-                lightLight.size_y = float(lightSizeY)                
+                lightLight.size_y = float(lightSizeY)         
+                lightLight.cycles.is_portal = portal   
+
             elif lightType == 'sphere':
                 lightLight = bpy.data.lamps.new(lightName,'POINT')
                 lightLight.shadow_soft_size = float(lightSizeX)
@@ -1002,6 +1009,7 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
 
             lightLight.cycles.use_multiple_importance_sampling = True
             lightObj = bpy.data.objects.new(lightName, lightLight)
+
             bpy.context.scene.objects.link(lightObj)
 
 
@@ -1294,11 +1302,21 @@ class HoudiniSceneLoaderOperator(bpy.types.Operator):
             fbxObj.cycles_visibility.scatter = int(cyclesParamsDict['ray_vis_volume_scatter'] == 'on')
             fbxObj.cycles_visibility.shadow = int(cyclesParamsDict['ray_vis_shadow'] == 'on')
 
+            #print (cyclesParamsDict['flat_shading']+" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            if cyclesParamsDict['flat_shading'] == 'on':
+
+                bpy.context.scene.objects.active = fbxObj
+                bpy.ops.object.shade_flat()
+                bpy.ops.object.select_all(action='DESELECT')
+
 
         fbxObj.rotation_mode = 'XZY'
 
         if cyclesParamsDict['display_as_box'] == 'on':
             fbxObj.draw_type = 'BOUNDS'
+
+        
+
 
         ### END import objects
 
