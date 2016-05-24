@@ -28,6 +28,7 @@ for s in dictString:
 scene = D.scenes['Scene']
 bpy.context.scene.conf_path = sceneFilePath
 
+print(sceneFilePath, " ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ")
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
 
