@@ -44,10 +44,15 @@ cmd = 'getbikestations'
 stationNum = 23 ### station velo rotonde
 enc = urlencode({"cmd":cmd, "key":key, "version":2.0})
 # print enc
+# http://data.explore.star.fr
 url = 'http://data.keolis-rennes.com/xml/?'+enc+''
+##url = 'http://data.explore.star.fr/explore/dataset/vls-stations-etat-tr/?'+enc+''
 
 data = urllib.urlopen(url)
+
+
 stationsData = data.read()
+#print (stationsData + "#################################")
 data.close()
 
 stationsXmlData = dom.parseString(stationsData)
@@ -119,20 +124,20 @@ for element in stationsXmlData.getElementsByTagName('state'):
 	
 
 
-rotondeLastUpdate = infoTime( stationRotondeNode.getElementsByTagName('lastupdate')[0].firstChild.nodeValue  )
+#rotondeLastUpdate = infoTime( stationRotondeNode.getElementsByTagName('lastupdate')[0].firstChild.nodeValue  )
 
 print 'Rotonde / Redon'
 print '----------------------------------'
 print 'Velos Libres : ', stationRotondeNode.getElementsByTagName('bikesavailable')[0].firstChild.nodeValue
 print 'Emplacements Disponibles :', stationRotondeNode.getElementsByTagName('slotsavailable')[0].firstChild.nodeValue
-print rotondeLastUpdate
+#print rotondeLastUpdate
 print '----------------------------------\n'
 
 
-canalLastUpdate = infoTime( stationCanalNode.getElementsByTagName('lastupdate')[0].firstChild.nodeValue  )
+#canalLastUpdate = infoTime( stationCanalNode.getElementsByTagName('lastupdate')[0].firstChild.nodeValue  )
 print 'Canal / Auberge de Jeunesse'
 print '----------------------------------'
 print 'Velos Libres : ', stationCanalNode.getElementsByTagName('bikesavailable')[0].firstChild.nodeValue
 print 'Emplacements Disponibles :', stationCanalNode.getElementsByTagName('slotsavailable')[0].firstChild.nodeValue
-print canalLastUpdate
+#print canalLastUpdate
 print '----------------------------------\n'

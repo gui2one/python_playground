@@ -84,7 +84,7 @@ class myClass(QtGui.QMainWindow):
 
 			self.SRCPATH = mPlayNameString
 
-			return [mPlayNameString,55]
+			#return [mPlayNameString,55]
 
 
 
@@ -140,7 +140,7 @@ class myClass(QtGui.QMainWindow):
 			else:
 				doMinimal = ''
 
-			self.MPLAY_process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.0.313/bin/mplay.exe "+doMinimal+" -p -z 100 -f 1 "+str(newNum)+" 1 -r 25 "+self.SRCPATH,
+			self.MPLAY_process = subprocess.Popen("C:/Program Files/Side Effects Software/Houdini 15.5.480/bin/mplay.exe "+doMinimal+" -p -z 100 -f 1 "+str(newNum)+" 1 -r 25 "+self.SRCPATH,
 										shell=False,
 										stdin=subprocess.PIPE,
 										stdout=subprocess.PIPE) 
@@ -149,13 +149,13 @@ class myClass(QtGui.QMainWindow):
 
 			obj  = glob.glob(self.SRCPATH)
 			num = len(obj)
-			oldNum = num-1
+			oldNum = num
 			
 			bBreak = self.CANCELED
 			while not bBreak :
 
 				bBreak = self.CANCELED
-				newNum = len(glob.glob(self.SRCPATH))-1
+				newNum = len(glob.glob(self.SRCPATH))
 				print newNum
 				if newNum > oldNum :
 					print "new file detected"

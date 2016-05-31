@@ -1,1 +1,1 @@
-F:/HOUDINI_CONFIG/otls/UNITY;F:/UNITY_PROJECTS/playground_02/Assets/OTLs
+F:/HOUDINI_CONFIG/otls;F:/UNITY_PROJECTS/New Unity Project/Assets/OTLs
