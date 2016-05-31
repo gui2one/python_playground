@@ -46,12 +46,14 @@ enc = urlencode({"cmd":cmd, "key":key, "version":2.0})
 # print enc
 # http://data.explore.star.fr
 url = 'http://data.keolis-rennes.com/xml/?'+enc+''
-##url = 'http://data.explore.star.fr/explore/dataset/vls-stations-etat-tr/?'+enc+''
+#url = 'http://data.explore.star.fr/api/records/1.0/search/?dataset=vls-stations-etat-tr&facet=nom&facet=etat&facet=nombreemplacementsactuels&facet=nombreemplacementsdisponibles&facet=nombrevelosdisponibles'
 
 data = urllib.urlopen(url)
 
 
+
 stationsData = data.read()
+
 #print (stationsData + "#################################")
 data.close()
 
