@@ -21,7 +21,7 @@ def kbfunc():
 
 def drawBar(screen,y,ratio):
 	width = screen.getmaxyx()[1]
-	numBlocks = int((ratio)*width)
+	numBlocks = int((ratio)*(width-1))
 	screen.addstr(y,0, " "*numBlocks, curses.color_pair(2))
 	screen.addstr(y,numBlocks, " "*(width - numBlocks), curses.color_pair(3))
 
@@ -52,9 +52,11 @@ while not done:
 	clearScreen(screen)
 
 	
+	
+	
+	screen.addstr(0,0,"   Gpu : %s" % nvmlDeviceGetName(handle), curses.color_pair(1))
 
-	screen.addstr(0,0,"   Gpu : %s" % nvmlDeviceGetName(handle), curses.color_pair(2))
-
+	
 	screen.addstr(2,3,"Usage : %s %%" % utilization.gpu, curses.color_pair(1))
 	drawBar(screen, 3, float(utilization.gpu) / 100.0)
 
