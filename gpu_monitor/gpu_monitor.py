@@ -53,7 +53,7 @@ while not done:
 
 	
 
-	screen.addstr(0,3,"Gpu : %s" % nvmlDeviceGetName(handle), curses.color_pair(1))
+	screen.addstr(0,0,"   Gpu : %s" % nvmlDeviceGetName(handle), curses.color_pair(2))
 
 	screen.addstr(2,3,"Usage : %s %%" % utilization.gpu, curses.color_pair(1))
 	drawBar(screen, 3, float(utilization.gpu) / 100.0)
