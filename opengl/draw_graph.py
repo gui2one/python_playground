@@ -6,7 +6,9 @@ from OpenGL.GLUT import *
 
 import math
 
-
+# import nvidiaa module
+from pynvml import *
+import time
 #-----------
 # VARIABLES
 #-----------
@@ -44,7 +46,7 @@ radius =  10.0
 
 camPosX = 0.
 camPosY = 0.
-camPosZ = -radius
+camPosZ = radius
 
 radiusInc = radius
 
@@ -53,6 +55,16 @@ angleY = 0.
 angleZ = 0.
 
 justPressed = False
+
+devices =[]
+
+
+
+timer = time.time()
+
+collectInc = 0
+gpuCurveValues = [0] * 100
+
 #-------------------
 # SCENE CONSTRUCTOR
 #-------------------
@@ -95,7 +107,89 @@ def cubeModel(shader):
     glutSolidCube(1.)  
     glDeleteProgram(shader)  
 
+def drawCurve(shader, values):
+    # shaders.glUseProgram(shader)
+    # myUniformLocation = glGetUniformLocation(shader, "myUniform");
+    # glUniform4f(myUniformLocation, 0.2,0.5,1.0,1.0);
 
+    glColor3f(1.0,0.0,0.0)
+    glBegin(GL_LINE_STRIP)  
+
+    for i in range(len(gpuCurveValues)):
+        val = gpuCurveValues[i]
+        glVertex2f(float(i)/100.0,float(val) / 100.0)
+  
+    
+    
+    glEnd()
+
+    # glDeleteProgram(shader)
+
+
+def glutPrint( x,  y,  font,  text, r,  g , b , a):
+
+    blending = False 
+    if glIsEnabled(GL_BLEND) :
+        blending = True
+
+    #glEnable(GL_BLEND)
+    glColor3f(1,1,1)
+    glRasterPos2f(x,y)
+    for ch in text :
+        glutBitmapCharacter( font , ctypes.c_int( ord(ch) ) )
+
+
+    if not blending :
+        glDisable(GL_BLEND) 
+
+
+def initNvmlInfos():
+    nvmlInit()
+    deviceCount = nvmlDeviceGetCount()
+    for i in range(deviceCount):
+        devices.append(nvmlDeviceGetHandleByIndex(i))
+
+    # print nvmlDeviceGetUtilizationRates(devices[0])
+
+def collectGPUData(handle):
+
+    global collectInc
+    gpuData=  nvmlDeviceGetUtilizationRates(handle).gpu
+    memoryDataData= nvmlDeviceGetMemoryInfo(handle)
+
+    gpuCurveValues[collectInc % 100] = gpuData
+    dataDict = {}
+    dataDict["gpu"] = gpuData
+    dataDict["memory"] = memoryDataData
+
+    collectInc += 1
+    
+    return dataDict
+
+def drawGPUTextInfos():
+    
+    global timer
+    #print devices[0]
+    data = collectGPUData(devices[0])
+
+    timeTest = time.time()
+    print (timeTest-timer)
+    if(timeTest - timer) > 0.05:
+
+        gpuCurveValues[0] = data["gpu"]
+        glutPrint( 0.2,1- (13.0/ g_Height),GLUT_BITMAP_8_BY_13 , str(data["gpu"]) , 1.0 , 1.0 , 1.0 , 1.0)
+
+        glutPrint( 0.2,1- ((13.0*2)/ g_Height),GLUT_BITMAP_8_BY_13 , str(timeTest) , 1.0 , 1.0 , 1.0 , 1.0)
+        
+
+
+        
+        timer = time.time()
+        glutPostRedisplay()
+    else:
+        timeTest = time.time()
+        glutPostRedisplay()
+    
 #--------
 # VIEWER
 #--------
@@ -122,9 +216,13 @@ def init():
     glEnable(GL_LIGHTING)
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_COLOR_MATERIAL)
+    glEnable(GL_LINE_SMOOTH)
     glDepthFunc(GL_LESS)
     glShadeModel(GL_SMOOTH)
     resetView()
+
+
+    initNvmlInfos()
 
 
 def resetView():
@@ -150,18 +248,24 @@ def display():
     glLoadIdentity()
 
     #gluPerspective(zoom, float(g_Width)/float(g_Height), g_nearPlane, g_farPlane)
-    glOrtho(0.0,10.0,0.0,1.0,0.0,1000.0)
+
+    # define ortho perspective
+    gluOrtho2D(0.0,1.0,0.0,1.0)
     glMatrixMode(GL_MODELVIEW)
     # Render the scene
-    gluLookAt(camPosX , camPosY, camPosZ, 0., 0., 0.,0,1,0)   #-.1,0,0
-    moveCamera()
+    # gluLookAt(camPosX , camPosY, camPosZ, 0., 0., 0.,0,1,0)   #-.1,0,0
+    # moveCamera()
     # glColor3f(1.,0.,0.)
     shader = createShader()
-    scenemodel(shader)
+    # scenemodel(shader)
     
     # glColor3f(1.,1.,0.)
-    cubeModel(shader)
+    # cubeModel(shader)
+    # glutPrint( 0.05 , 0.05 , GLUT_BITMAP_9_BY_15 , "Hallo World" , 1.0 , 1.0 , 1.0 , 1.0 )
+    drawGPUTextInfos()
+    drawCurve(shader, gpuCurveValues)
     
+
     # Make sure changes appear onscreen
     glutSwapBuffers()
 
@@ -202,15 +306,11 @@ def moveCamera():
     camPosY = math.sin(math.radians(phi))*radius
     camPosZ = math.cos(math.radians(theta))* math.cos(math.radians(phi))* -radius
 
-
-   
-
 def keyboard(key, x, y):
     global zTr, yTr, xTr
     if(key=='r'): resetView()
     if(key=='q'): exit(0)
     glutPostRedisplay()
-
 
 def mouse(button, state, x, y):
     global action, xStart, yStart, justPressed
@@ -246,7 +346,6 @@ def mouse(button, state, x, y):
     xStart = x
     yStart = y
 
-
 def motion(x, y):
     # global zoom, xStart, yStart, xRotate, yRotate, zRotate, xTrans, yTrans
     global oldMouseX, oldMouseY, deltaX, deltaY
@@ -272,8 +371,6 @@ def motion(x, y):
     oldMouseX = x
     oldMouseY = y
     glutPostRedisplay()
-
-
 #------
 # MAIN
 #------
@@ -283,7 +380,7 @@ if __name__=="__main__":
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB| GLUT_DEPTH)      # zBuffer
     glutInitWindowSize (g_Width,g_Height) 
     glutInitWindowPosition (0 + 4, g_Height / 4)
-    glutCreateWindow ("Visualizzatore_2.0")
+    glutCreateWindow ("gui2one GPU monitor V2")
     # Initialize OpenGL graphics state
     init ()
     # Register callbacks

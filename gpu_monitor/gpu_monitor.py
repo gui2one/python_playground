@@ -60,6 +60,7 @@ while not done:
 	screen.addstr(2,3,"Usage : %s %%" % utilization.gpu, curses.color_pair(1))
 	drawBar(screen, 3, float(utilization.gpu) / 100.0)
 
+	screen.addstr(4, 3, "Temperature : %s degrees C" % (int(nvmlDeviceGetTemperature(handle,0))), curses.color_pair(1))
 	screen.addstr(5,3,"Memory :", curses.color_pair(1))
 	screen.addstr(6,3,"Total: %s -- Used : %s -- Free: %s " % (memInfo.total/1024/1024, memInfo.used/1024/1024, memInfo.free/1024/1024), curses.color_pair(1))
 	
