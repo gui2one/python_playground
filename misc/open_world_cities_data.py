@@ -7,7 +7,7 @@
 
 import sqlite3
 
-f = open("worldcitiespop.txt",'r')
+f = open("worldcitiespop_____.txt",'r')
 
 data = f.readlines()
 
@@ -34,7 +34,7 @@ print len(cities)
 
 
 
-dbName = 'cities_subset.db'
+dbName = 'countries.db'
 conn = sqlite3.connect(dbName)
 
 conn.text_factory = lambda x: unicode(x, 'utf-8', 'ignore')

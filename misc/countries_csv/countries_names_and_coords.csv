@@ -1,0 +1,238 @@
+initials, english name, french name, lat, lng
+AD,Andorra,Andorre,42.5000,1.5000
+AE,United Arab Emirates,Émirats arabes unis,24.0000,54.0000
+AF,Afghanistan,Afghanistan,33.0000,65.0000
+AG,Antigua and Barbuda,Antigua-et-Barbuda,17.0500,-61.8000
+AI,Anguilla,Anguilla,18.2500,-63.1667
+AL,Albania,Albanie,41.0000,20.0000
+AM,Armenia,Arménie,40.0000,45.0000
+AO,Angola,Angola,-12.5000,18.5000
+AQ,Antarctica,Antarctique,-90.0000,0.0000
+AR,Argentina,Argentine,-34.0000,-64.0000
+AS,American Samoa,Samoa américaine,-14.3333,-170.0000
+AT,Austria,Autriche,47.3333,13.3333
+AU,Australia,Australie,-27.0000,133.0000
+AW,Aruba,Aruba,12.5000,-69.9667
+AZ,Azerbaijan,Azerbaïdjan,40.5000,47.5000
+BA,Bosnia and Herzegovina,Bosnie-Herzégovine,44.0000,18.0000
+BB,Barbados,Barbade,13.1667,-59.5333
+BD,Bangladesh,Bangladesh,24.0000,90.0000
+BE,Belgium,Belgique,50.8333,4.0000
+BF,Burkina Faso,Burkina Faso,13.0000,-2.0000
+BG,Bulgaria,Bulgarie,43.0000,25.0000
+BH,Bahrain,Bahreïn,26.0000,50.5500
+BI,Burundi,Burundi,-3.5000,30.0000
+BJ,Benin,Bénin,9.5000,2.2500
+BM,Bermuda,Bermudes,32.3333,-64.7500
+BN,Brunei Darussalam,Brunei Darussalam,4.5000,114.6667
+BO,Bolivia,Bolivie,-17.0000,-65.0000
+BR,Brazil,Brésil,-10.0000,-55.0000
+BS,Bahamas,Bahamas,24.2500,-76.0000
+BT,Bhutan,Bhoutan,27.5000,90.5000
+BV,Bouvet Island,Île Bouvet,-54.4333,3.4000
+BW,Botswana,Botswana,-22.0000,24.0000
+BY,Belarus,Bélarus,53.0000,28.0000
+BZ,Belize,Belize,17.2500,-88.7500
+CA,Canada,Canada,60.0000,-95.0000
+CC,Cocos (Keeling) Islands,Îles Cocos (Keeling),-12.5000,96.8333
+CD,"Congo, Democratic Republic of",0.0000,25.0000
+CF,Central African Republic,République centrafricaine,7.0000,21.0000
+CG,Congo,Congo,-1.0000,15.0000
+CH,Switzerland,Suisse,47.0000,8.0000
+CI,Côte d'Ivoire,Côte d'Ivoire,8.0000,-5.0000
+CK,Cook Islands,Îles Cook,-21.2333,-159.7667
+CL,Chile,Chili,-30.0000,-71.0000
+CM,Cameroon,Cameroun,6.0000,12.0000
+CN,China,Chine,35.0000,105.0000
+CO,Colombia,Colombie,4.0000,-72.0000
+CR,Costa Rica,Costa Rica,10.0000,-84.0000
+CU,Cuba,Cuba,21.5000,-80.0000
+CV,Cape Verde,Cap-Vert,16.0000,-24.0000
+CX,Christmas Island,Île Christmas,-10.5000,105.6667
+CY,Cyprus,Chypre,35.0000,33.0000
+CZ,Czech Republic,République tchèque,49.7500,15.5000
+DE,Germany,Allemagne,51.0000,9.0000
+DJ,Djibouti,Djibouti,11.5000,43.0000
+DK,Denmark,Danemark,56.0000,10.0000
+DM,Dominica,Dominique,15.4167,-61.3333
+DO,Dominican Republic,République dominicaine,19.0000,-70.6667
+DZ,Algeria,Algérie,28.0000,3.0000
+EC,Ecuador,Équateur,-2.0000,-77.5000
+EE,Estonia,Estonie,59.0000,26.0000
+EG,Egypt,Égypte,27.0000,30.0000
+EH,Western Sahara,Sahara Occidental,24.5000,-13.0000
+ER,Eritrea,Érythrée,15.0000,39.0000
+ES,Spain,Espagne,40.0000,-4.0000
+ET,Ethiopia,Éthiopie,8.0000,38.0000
+FI,Finland,Finlande,64.0000,26.0000
+FJ,Fiji,Fidji,-18.0000,175.0000
+FK,Falkland Islands,Îles Malouines,-51.7500,-59.0000
+FM,"Micronesia, Federated States of",6.9167,158.2500
+FO,Faroe Islands,Îles Féroé,62.0000,-7.0000
+FR,France,France,46.0000,2.0000
+GA,Gabon,Gabon,-1.0000,11.7500
+GB,United Kingdom,Royaume-Uni,54.0000,-2.0000
+GD,Grenada,Grenade,12.1167,-61.6667
+GE,Georgia,Géorgie,42.0000,43.5000
+GF,French Guiana,Guyane française,4.0000,-53.0000
+GH,Ghana,Ghana,8.0000,-2.0000
+GI,Gibraltar,Gibraltar,36.1833,-5.3667
+GL,Greenland,Groenland,72.0000,-40.0000
+GM,Gambia,Gambie,13.4667,-16.5667
+GN,Guinea,Guinée,11.0000,-10.0000
+GP,Guadeloupe,Guadeloupe,16.2500,-61.5833
+GQ,Equatorial Guinea,Guinée équatoriale,2.0000,10.0000
+GR,Greece,Grèce,39.0000,22.0000
+GS,South Georgia and the South Sandwich Islands,Géorgie du Sud et les îles Sandwich du Sud,-54.5000,-37.0000
+GT,Guatemala,Guatemala,15.5000,-90.2500
+GU,Guam,Guam,13.4667,144.7833
+GW,Guinea-Bissau,Guinée-Bissau,12.0000,-15.0000
+GY,Guyana,Guyana,5.0000,-59.0000
+HK,Hong Kong,Hong Kong,22.2500,114.1667
+HM,Heard and McDonald Islands,Îles Heard et McDonald,-53.1000,72.5167
+HN,Honduras,Honduras,15.0000,-86.5000
+HR,Croatia,Croatie,45.1667,15.5000
+HT,Haiti,Haïti,19.0000,-72.4167
+HU,Hungary,Hongrie,47.0000,20.0000
+ID,Indonesia,Indonésie,-5.0000,120.0000
+IE,Ireland,Irlande,53.0000,-8.0000
+IL,Israel,Israël,31.5000,34.7500
+IN,India,Inde,20.0000,77.0000
+IO,British Indian Ocean Territory,Territoire britannique de l'océan Indien,-6.0000,71.5000
+IQ,Iraq,Irak,33.0000,44.0000
+IR,Iran,Iran,32.0000,53.0000
+IS,Iceland,Islande,65.0000,-18.0000
+IT,Italy,Italie,42.8333,12.8333
+JM,Jamaica,Jamaïque,18.2500,-77.5000
+JO,Jordan,Jordanie,31.0000,36.0000
+JP,Japan,Japon,36.0000,138.0000
+KE,Kenya,Kenya,1.0000,38.0000
+KG,Kyrgyzstan,Kirghizistan,41.0000,75.0000
+KH,Cambodia,Cambodge,13.0000,105.0000
+KI,Kiribati,Kiribati,1.4167,173.0000
+KM,Comoros,Comores,-12.1667,44.2500
+KN,Saint Kitts and Nevis,Saint-Kitts-et-Nevis,17.3333,-62.7500
+KP,North Korea,Corée du Nord,40.0000,127.0000
+KR,South Korea,Corée du Sud,37.0000,127.5000
+KW,Kuwait,Koweït,29.3375,47.6581
+KY,Cayman Islands,Îles Caïmans,19.5000,-80.5000
+KZ,Kazakhstan,Kazakhstan,48.0000,68.0000
+LA,Lao People's Democratic Republic,Laos,18.0000,105.0000
+LB,Lebanon,Liban,33.8333,35.8333
+LC,Saint Lucia,Sainte-Lucie,13.8833,-61.1333
+LI,Liechtenstein,Liechtenstein,47.1667,9.5333
+LK,Sri Lanka,Sri Lanka,7.0000,81.0000
+LR,Liberia,Libéria,6.5000,-9.5000
+LS,Lesotho,Lesotho,-29.5000,28.5000
+LT,Lithuania,Lituanie,56.0000,24.0000
+LU,Luxembourg,Luxembourg,49.7500,6.1667
+LV,Latvia,Lettonie,57.0000,25.0000
+LY,Libya,Libye,25.0000,17.0000
+MA,Morocco,Maroc,32.0000,-5.0000
+MC,Monaco,Monaco,43.7333,7.4000
+MD,Moldova,Moldavie,47.0000,29.0000
+ME,Montenegro,Monténégro,42.0000,19.0000
+MG,Madagascar,Madagascar,-20.0000,47.0000
+MH,Marshall Islands,Îles Marshall,9.0000,168.0000
+MK,Macedonia,Macédoine,41.8333,22.0000
+ML,Mali,Mali,17.0000,-4.0000
+MM,Myanmar,Myanmar,22.0000,98.0000
+MN,Mongolia,Mongolie,46.0000,105.0000
+MO,Macau,Macao,22.1667,113.5500
+MP,Northern Mariana Islands,Mariannes du Nord,15.2000,145.7500
+MQ,Martinique,Martinique,14.6667,-61.0000
+MR,Mauritania,Mauritanie,20.0000,-12.0000
+MS,Montserrat,Montserrat,16.7500,-62.2000
+MT,Malta,Malte,35.8333,14.5833
+MU,Mauritius,Maurice,-20.2833,57.5500
+MV,Maldives,Maldives,3.2500,73.0000
+MW,Malawi,Malawi,-13.5000,34.0000
+MX,Mexico,Mexique,23.0000,-102.0000
+MY,Malaysia,Malaisie,2.5000,112.5000
+MZ,Mozambique,Mozambique,-18.2500,35.0000
+NA,Namibia,Namibie,-22.0000,17.0000
+NC,New Caledonia,Nouvelle-Calédonie,-21.5000,165.5000
+NE,Niger,Niger,16.0000,8.0000
+NF,Norfolk Island,Île Norfolk,-29.0333,167.9500
+NG,Nigeria,Nigeria,10.0000,8.0000
+NI,Nicaragua,Nicaragua,13.0000,-85.0000
+NL,The Netherlands,Pays-Bas,52.5000,5.7500
+NO,Norway,Norvège,62.0000,10.0000
+NP,Nepal,Népal,28.0000,84.0000
+NR,Nauru,Nauru,-0.5333,166.9167
+NU,Niue,Niue,-19.0333,-169.8667
+NZ,New Zealand,Nouvelle-Zélande,-41.0000,174.0000
+OM,Oman,Oman,21.0000,57.0000
+PA,Panama,Panama,9.0000,-80.0000
+PE,Peru,Pérou,-10.0000,-76.0000
+PF,French Polynesia,Polynésie française,-15.0000,-140.0000
+PG,Papua New Guinea,Papouasie-Nouvelle-Guinée,-6.0000,147.0000
+PH,Philippines,Philippines,13.0000,122.0000
+PK,Pakistan,Pakistan,30.0000,70.0000
+PL,Poland,Pologne,52.0000,20.0000
+PM,St. Pierre and Miquelon,Saint-Pierre-et-Miquelon,46.8333,-56.3333
+PR,Puerto Rico,Puerto Rico,18.2500,-66.5000
+PS,"Palestine, State of",32.0000,35.2500
+PT,Portugal,Portugal,39.5000,-8.0000
+PW,Palau,Palau,7.5000,134.5000
+PY,Paraguay,Paraguay,-23.0000,-58.0000
+QA,Qatar,Qatar,25.5000,51.2500
+RE,Réunion,Réunion,-21.1000,55.6000
+RO,Romania,Roumanie,46.0000,25.0000
+RS,Serbia,Serbie,44.0000,21.0000
+RU,Russian Federation,Russie,60.0000,100.0000
+RW,Rwanda,Rwanda,-2.0000,30.0000
+SA,Saudi Arabia,Arabie saoudite,25.0000,45.0000
+SB,Solomon Islands,Îles Salomon,-8.0000,159.0000
+SC,Seychelles,Seychelles,-4.5833,55.6667
+SD,Sudan,Soudan,15.0000,30.0000
+SE,Sweden,Suède,62.0000,15.0000
+SG,Singapore,Singapour,1.3667,103.8000
+SH,Saint Helena,Sainte-Hélène,-15.9333,-5.7000
+SI,Slovenia,Slovénie,46.0000,15.0000
+SJ,Svalbard and Jan Mayen Islands,Svalbard et île de Jan Mayen,78.0000,20.0000
+SK,Slovakia,Slovaquie,48.6667,19.5000
+SL,Sierra Leone,Sierra Leone,8.5000,-11.5000
+SM,San Marino,Saint-Marin,43.7667,12.4167
+SN,Senegal,Sénégal,14.0000,-14.0000
+SO,Somalia,Somalie,10.0000,49.0000
+SR,Suriname,Suriname,4.0000,-56.0000
+ST,Sao Tome and Principe,Sao Tomé-et-Principe,1.0000,7.0000
+SV,El Salvador,El Salvador,13.8333,-88.9167
+SY,Syria,Syrie,35.0000,38.0000
+SZ,Swaziland,Swaziland,-26.5000,31.5000
+TC,Turks and Caicos Islands,Îles Turks et Caicos,21.7500,-71.5833
+TD,Chad,Tchad,15.0000,19.0000
+TF,French Southern Territories,Terres australes françaises,-43.0000,67.0000
+TG,Togo,Togo,8.0000,1.1667
+TH,Thailand,Thaïlande,15.0000,100.0000
+TJ,Tajikistan,Tadjikistan,39.0000,71.0000
+TK,Tokelau,Tokelau,-9.0000,-172.0000
+TM,Turkmenistan,Turkménistan,40.0000,60.0000
+TN,Tunisia,Tunisie,34.0000,9.0000
+TO,Tonga,Tonga,-20.0000,-175.0000
+TR,Turkey,Turquie,39.0000,35.0000
+TT,Trinidad and Tobago,Trinité-et-Tobago,11.0000,-61.0000
+TV,Tuvalu,Tuvalu,-8.0000,178.0000
+TW,Taiwan,Taïwan,23.5000,121.0000
+TZ,Tanzania,Tanzanie,-6.0000,35.0000
+UA,Ukraine,Ukraine,49.0000,32.0000
+UG,Uganda,Ouganda,1.0000,32.0000
+UM,United States Minor Outlying Islands,Îles mineures éloignées des États-Unis,19.2833,166.6000
+US,United States,États-Unis,37.7510,-97.8220
+UY,Uruguay,Uruguay,-33.0000,-56.0000
+UZ,Uzbekistan,Ouzbékistan,41.0000,64.0000
+VA,Vatican,Vatican,41.9000,12.4500
+VC,Saint Vincent and the Grenadines,Saint-Vincent-et-les-Grenadines,13.2500,-61.2000
+VE,Venezuela,Venezuela,8.0000,-66.0000
+VG,Virgin Islands (British),Îles Vierges britanniques,18.5000,-64.5000
+VI,Virgin Islands (U.S.),Îles Vierges américaines,18.3333,-64.8333
+VN,Vietnam,Vietnam,16.0000,106.0000
+VU,Vanuatu,Vanuatu,-16.0000,167.0000
+WF,Wallis and Futuna Islands,Îles Wallis-et-Futuna,-13.3000,-176.2000
+WS,Samoa,Samoa,-13.5833,-172.3333
+YE,Yemen,Yémen,15.0000,48.0000
+YT,Mayotte,Mayotte,-12.8333,45.1667
+ZA,South Africa,Afrique du Sud,-29.0000,24.0000
+ZM,Zambia,Zambie,-15.0000,30.0000
+ZW,Zimbabwe,Zimbabwe,-20.0000,30.0000
