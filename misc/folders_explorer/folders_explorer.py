@@ -21,10 +21,10 @@ class myClass(QtGui.QMainWindow):
 		self.labelSrc.resize(1000,30)
 		self.labelSrc.move(10,10)
 
-		self.choosePathButton = QtGui.QPushButton('Choose Sequence', self)	
-		self.choosePathButton.clicked.connect(lambda :self.myFunc())
-		self.choosePathButton.move(10,40)
-		self.choosePathButton.setFixedHeight(20)
+		self.checkFolder = QtGui.QPushButton('Check Folder', self)	
+		self.checkFolder.clicked.connect(lambda :self.myFunc())
+		self.checkFolder.move(10,40)
+		self.checkFolder.setFixedHeight(20)
 
 		self.foldersView = QtGui.QTreeView(self)
 		self.foldersView.move(10,80)
@@ -32,17 +32,36 @@ class myClass(QtGui.QMainWindow):
 		
 		fileModel = QtGui.QFileSystemModel()
 		fileModel.setRootPath(QtCore.QDir.currentPath())
+		
 
 		self.foldersView.setModel(fileModel)
-		print fileModel.rootPath()
+		# for item in dir(self.foldersView):
+		# 	print item
+
 		self.setWindowTitle("ho ho ho")
 		self.setGeometry(300, 300, 680, 380)
 
 
 	def myFunc(self):
-		print self
+
+		itemData = self.foldersView.selectedIndexes()[0].data()
+		print itemData.title()
+		for item in dir(itemData):
+			print item,"!!!!!!!!!!!!!!!!!!!!!!"
+
+		print '------------------'
+		print "count : ",itemData.count(itemData)
 
 
+	def get_size(start_path = '.'):
+	    total_size = 0
+	    for dirpath, dirnames, filenames in os.walk(start_path):
+	        for f in filenames:
+	            fp = os.path.join(dirpath, f)
+	            total_size += os.path.getsize(fp)
+	    return total_size
+
+	
 	# def choosePath(self) :
 
 	# 	global SRCPATH
