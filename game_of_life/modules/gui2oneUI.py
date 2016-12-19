@@ -1,5 +1,6 @@
 import math
 import pygame
+import sys
 
 def roundValue(value, decimals = 1):
     return math.floor(value * (10 ** (decimals+1)))/ float(10 ** (decimals+1))
@@ -46,6 +47,7 @@ class gui2oneUI(object):
 
             if event.type == pygame.QUIT:
                 print "bye bye"
+                sys.exit()
                 
 
             ### first, check for ediText in editMode
@@ -175,9 +177,6 @@ class uiItem(object):
         self.callbacks.append(callback)
         self.callbacksArgs.append(attrs)
         
-    def setFontSize(self, fSize):
-        self.fontSize = fSize
-           
     def fire(self, *args):
         # print "ARGS -->", args
         e = Event()
@@ -190,6 +189,10 @@ class uiItem(object):
                 fn(*self.callbacksArgs[i])
             else:
                 fn()
+                
+    def setFontSize(self, fSize):
+        self.fontSize = fSize
+           
 
     def setSize(self, width , height):
         self.size = [width,height]
@@ -233,11 +236,12 @@ class StaticText(uiItem):
         self.fontSize = fontSize
     
     def draw(self):
+        self.rect = pygame.Rect(self.position[0],self.position[1], self.size[0], self.size[1])
         self.font = pygame.font.Font(pygame.font.get_default_font(),self.fontSize)
         textSurface = self.font.render(self.text, True, self.fontColor)
         
         textPosX = self.rect.left
-        textPosY = self.rect.top-30        
+        textPosY = self.rect.top        
         self.screen.blit(textSurface,(textPosX,textPosY))  
 
 class EditText(uiItem):
@@ -263,7 +267,7 @@ class EditText(uiItem):
         textPosY = self.rect.top  + ( (self.size[1] - surfSize[1])/2.0) 
 
         if self.showLabel:
-            labelSurface = self.font.render(str(self.name +" :"), True, (255,255,255))
+            labelSurface = self.font.render(str(" : "+self.name ), True, (255,255,255))
             offsetX = self.size[0]+5
             labelPosX = self.rect.left+offsetX
             labelPosY = self.rect.top  + ( (self.size[1] - labelSurface.get_size()[1])/2.0)
@@ -281,16 +285,18 @@ class Line(uiItem):
         uiItem.__init__(self,screen,x,y,width, height,name,defaultValue,draggable=False, dragDir="horizontal",fontSize=12)
         self.color = (55,55,55)
         self.fontSize = fontSize
+        self.showLabel = False
   
     def draw(self):
         self.rect = pygame.Rect(self.position[0],self.position[1],self.size[0],self.size[1])
         pygame.draw.rect(self.screen, self.color, self.rect)
-        self.font = pygame.font.Font(pygame.font.get_default_font(),self.fontSize)
-        textSurface = self.font.render(self.name, True, (255,255,255)) 
-        textPosX = self.rect.left
-        textPosY = self.rect.top-30
-        
-        self.screen.blit(textSurface,(textPosX,textPosY))        
+        if self.showLabel:
+            self.font = pygame.font.Font(pygame.font.get_default_font(),self.fontSize)
+            textSurface = self.font.render(self.name, True, (255,255,255)) 
+            textPosX = self.rect.left
+            textPosY = self.rect.top
+            
+            self.screen.blit(textSurface,(textPosX,textPosY))        
         
 class Slider(uiItem):
     def __init__(   self, screen,x,y,width, height,name="item_name",defaultValue=0.0,draggable=False,dragDir="horizontal",fontSize=12):

@@ -217,7 +217,9 @@ def buildGrid():
     frameCounter = 0
 
 def pauseGrid():
+
     grid.isEvolving = not grid.isEvolving
+
 
 def saveRecordInCache():
     global recordString
@@ -278,8 +280,9 @@ margin = 5
 leftColWidth = 120
 rightColWidth = screen.get_size()[0] - leftColWidth
 buttonsHeight = 20
-gridMaxY = 550
+gridMaxY = 630
 
+GOL_frameRate = 5.0
 isEvolving = True
 
 
@@ -326,10 +329,16 @@ ui.addItem(clearCacheBtn)
 
 
 
-quitBtn = Button(screen, screen.get_width() - 60,0,60,60, "Quit")
-quitBtn.subscribe(quitApp)
-ui.addItem(quitBtn)
 
+
+
+uiY += margin+buttonsHeight
+editWidth = EditText(screen, margin, uiY, 50,20,"width",90)
+ui.addItem(editWidth)
+
+uiY += margin+buttonsHeight
+editHeight = EditText(screen, margin, uiY,50,20,"height",90)
+ui.addItem(editHeight)
 
 
 
@@ -339,32 +348,43 @@ listView = ListView(screen, margin,uiY,leftColWidth,300,"record list :")
 ui.addItem(listView)
 
 
+uiY += margin+buttonsHeight + 300
+quitBtn = Button(screen, margin,uiY,leftColWidth,30, "Quit")
+quitBtn.subscribe(quitApp)
+ui.addItem(quitBtn)
+
+uiY += margin+buttonsHeight + 20
+cachingText = StaticText(screen, margin,uiY,leftColWidth,100,"Caching ...")
+cachingText.fontSize =  20
+cachingText.fontColor = (255,30,30)
+cachingText.visible = False
+ui.addItem(cachingText)
+
+playModeText  = StaticText(screen, margin,uiY,leftColWidth,100,"Cache Mode")
+playModeText.fontSize =  20
+playModeText.fontColor = (255,30,30)
+playModeText.visible = False
+ui.addItem(playModeText)
 
 
-
-editWidth = EditText(screen, leftColWidth+margin*3, 40, 50,20,"width",20)
-ui.addItem(editWidth)
-
-editHeight = EditText(screen, leftColWidth+margin*3, 60, 50,20,"height",20)
-
-ui.addItem(editHeight)
 
 record = 0
 frameCounter = 0
+milliCounter = 0
 
-gridSize = 25
-gridPos = [leftColWidth+margin*3,100]  
+gridSize = int(editWidth.defaultValue)
+gridPos = [leftColWidth+margin*3,margin]  
 grid = GOL_grid(gridPos,[gridSize,gridSize])
 
 timeSlider = Slider(screen, leftColWidth + margin,screen.get_height()-30,rightColWidth - (margin*2)-100,30,"time",0.0)
 timeSlider.active = False
 ui.addItem(timeSlider)
 
-iterText = StaticText(screen,500,gridPos[1],200,50)
+iterText = StaticText(screen,leftColWidth + margin*3,screen.get_height()-20,200,20)
 iterText.setFontSize(13)
 ui.addItem(iterText)
 
-recordText = StaticText(screen,500,gridPos[1]-20,200,50)
+recordText = StaticText(screen,leftColWidth + 100+ margin*3 ,screen.get_height()-20 ,200,20)
 recordText.setFontSize(13)
 ui.addItem(recordText)
 
@@ -375,21 +395,6 @@ cacheReady = False
 
 
 
-
-
-
-
-cachingText = StaticText(screen, leftColWidth+margin*3,30+margin,200,100,"Caching ...")
-cachingText.fontSize =  20
-cachingText.fontColor = (255,30,30)
-cachingText.visible = False
-ui.addItem(cachingText)
-
-playModeText  = StaticText(screen, leftColWidth+margin*3+margin,30,200,100,"Cache Mode")
-playModeText.fontSize =  20
-playModeText.fontColor = (255,30,30)
-playModeText.visible = False
-ui.addItem(playModeText)
 
 
 
@@ -419,6 +424,7 @@ while not done:
     
     grid.cellSize = min( int((rightColWidth-30) / grid.size[0])  ,  int(gridMaxY/grid.size[1]))
 
+    iterText.position[1] = (grid.size[1] * grid.cellSize) + iterText.size[1]
     screen.fill((0, 0, 0))
 
 
@@ -492,6 +498,7 @@ while not done:
         if(doCache):
             cacheIteration()
 
+
         grid.update()   
     
     elif MODE == "CACHE":
@@ -521,6 +528,9 @@ while not done:
 
     
     clock.tick(30)
+    milliCounter += clock.get_time()
+    # for item in dir(clock):
+    #     print item
 
     pygame.display.flip()
     
