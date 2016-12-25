@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ## script to resize image from a given folder
 ## films GIBOIRE 2016
 
@@ -7,13 +8,15 @@ import glob
 import os
 
 
-for item in dir(PIL):
-	print item
+# for item in dir(PIL):
+# 	print item
 
-folderPath = "H:/WORK_PROJECTS/SPRAYFILMS/GIBOIRE/2D/AE/medias/BUSINESS/visuels_resize"
+folderPath = u"D:/WORK/SPRAYFILM/GIBOIRE/PIECES_FOURNIES/retour_FINAL/film Moyens -- RH -- Nouveaux arrivants/resize"
+
 
 
 folderContent = glob.glob(folderPath+"\*")
+print folderContent
 basewidth = 1920
 
 for i,imgFile in enumerate(folderContent):
