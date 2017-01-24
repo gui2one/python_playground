@@ -11,7 +11,7 @@ import os
 # for item in dir(PIL):
 # 	print item
 
-folderPath = u"D:/WORK/SPRAYFILM/GIBOIRE/PIECES_FOURNIES/retour_FINAL/film Moyens -- RH -- Nouveaux arrivants/resize"
+folderPath = u"D:/WORK/SPRAYFILM/GIBOIRE/2D/AE/medias/BUSINESS/visuels_supp/nos_clients_nos_meilleurs_embassadeurs/resize"
 
 
 
