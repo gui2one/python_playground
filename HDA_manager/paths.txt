@@ -1,1 +1,1 @@
-F:/HOUDINI_CONFIG/otls;F:/UNITY_PROJECTS/New Unity Project/Assets/OTLs
+D:/CODE/HOUDINI_CONFIG/otls/UNITY;D:/PLAY/UNITY/New Unity Project 1/Assets/HDAs
