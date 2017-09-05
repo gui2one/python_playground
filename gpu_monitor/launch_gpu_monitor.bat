@@ -1,2 +1,2 @@
-python ./gpu_monitor.py
+py -2 ./gpu_monitor.py
 PAUSE

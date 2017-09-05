@@ -29,7 +29,11 @@ def drawBar(screen,y,ratio):
 nvmlInit()
 deviceCount = nvmlDeviceGetCount()
 
-handle = nvmlDeviceGetHandleByIndex(0)
+
+#print str(deviceCount) + "!!!!!!"
+
+
+
 
 
 
@@ -46,27 +50,34 @@ done = False
 
 
 while not done:
-	memInfo = nvmlDeviceGetMemoryInfo(handle)
-	utilization = nvmlDeviceGetUtilizationRates(handle)
 
 	clearScreen(screen)
+	offset = 0
+	for i in range(0,deviceCount):
 
-	
-	
-	
-	screen.addstr(0,0,"   Gpu : %s" % nvmlDeviceGetName(handle), curses.color_pair(1))
+		handle = nvmlDeviceGetHandleByIndex(i)
+		memInfo = nvmlDeviceGetMemoryInfo(handle)
+		utilization = nvmlDeviceGetUtilizationRates(handle)
 
-	
-	screen.addstr(2,3,"Usage : %s %%" % utilization.gpu, curses.color_pair(1))
-	drawBar(screen, 3, float(utilization.gpu) / 100.0)
+		
 
-	screen.addstr(4, 3, "Temperature : %s degrees C" % (int(nvmlDeviceGetTemperature(handle,0))), curses.color_pair(1))
-	screen.addstr(5,3,"Memory :", curses.color_pair(1))
-	screen.addstr(6,3,"Total: %s -- Used : %s -- Free: %s " % (memInfo.total/1024/1024, memInfo.used/1024/1024, memInfo.free/1024/1024), curses.color_pair(1))
-	
+		
+		
+		
+		screen.addstr(0+offset,0,"   Gpu : %s" % nvmlDeviceGetName(handle), curses.color_pair(1))
 
-	drawBar(screen, 7, (float(memInfo.used) / memInfo.total))
-	
+		
+		screen.addstr(1+offset,3,"Usage : %s %%" % utilization.gpu, curses.color_pair(1))
+		drawBar(screen, 3+offset, float(utilization.gpu) / 100.0)
+
+		screen.addstr(4+offset, 3, "Temperature : %s degrees C" % (int(nvmlDeviceGetTemperature(handle,0))), curses.color_pair(1))
+		screen.addstr(5+offset,3,"Memory :", curses.color_pair(1))
+		screen.addstr(6+offset,3,"Total: %s -- Used : %s -- Free: %s " % (memInfo.total/1024/1024, memInfo.used/1024/1024, memInfo.free/1024/1024), curses.color_pair(1))
+		
+
+		drawBar(screen, 7+offset, (float(memInfo.used) / memInfo.total))
+		
+		offset += 10
 
 	screen.refresh()
 
