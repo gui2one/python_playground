@@ -1,0 +1,96 @@
+<!doctype html>
+<!--this page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html>
+  <head>
+    <title>Getting Started Extension's Popup</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <style>
+      body {
+        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+        font-size: 1.5em;
+        background-color: #222222;
+        color:#ffffff;
+        max-height:600px;
+      }
+
+
+      #status {
+        /* avoid an excessively wide status text */
+        width : 450px;
+        /* white-space: pre; */
+        text-overflow: ellipsis;
+        overflow-y: scroll;
+        max-width: 400px;
+        height:350px;
+        
+      }
+
+
+      #status::-webkit-scrollbar{
+          width:10px;
+          
+      }
+      #status::-webkit-scrollbar-track {
+          background: #ddd;
+          border-radius: 5px;
+        }
+
+      #status::-webkit-scrollbar-thumb {
+          background: #666; 
+          border-radius: 5px;
+          border:2px solid rgba(255, 255, 255, 0.1)
+        }
+
+      #status p{
+        background-color: #555555;
+        margin:5px;
+        padding:10px;
+        
+      }
+
+      #status a{
+        color:#ffffff;
+        text-decoration: none;
+      }
+      #status a:hover{
+
+        text-decoration: underline;
+      }
+
+      .launch_cell{
+        background-color: #ff0000;
+      }
+
+      .buttons_div{
+
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+    </style>
+ 
+    <!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
+     -->
+    <script src="jquery-3.2.1.min.js"></script>
+    <script src="popup.js"></script>
+    <script src="alarms.js"></script>
+  </head>
+  <body> 
+    <div class="container">
+      <header><h1>Next Rocket Launches</h1></header>
+      <div id="status"></div>
+    </div>
+    <div class="container buttons_div">    
+      <button id="refreshData" class="btn btn-primary">RefreshData</button>
+      <button id="toggleAlarm" class="btn btn-primary">Activate alarm</button>
+      <!-- <img id="image-result" hidden> -->
+    </div>
+    
+  </body>
+</html> 
