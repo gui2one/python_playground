@@ -149,8 +149,8 @@ def display():
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
 
-    #gluPerspective(zoom, float(g_Width)/float(g_Height), g_nearPlane, g_farPlane)
-    glOrtho(0.0,10.0,0.0,1.0,0.0,1000.0)
+    gluPerspective(zoom, float(g_Width)/float(g_Height), g_nearPlane, g_farPlane)
+    # glOrtho(0.0,10.0,0.0,1.0,0.0,1000.0)
     glMatrixMode(GL_MODELVIEW)
     # Render the scene
     gluLookAt(camPosX , camPosY, camPosZ, 0., 0., 0.,0,1,0)   #-.1,0,0

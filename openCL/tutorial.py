@@ -4,6 +4,8 @@ import numpy
 
 if __name__ == "__main__":
     vector = numpy.zeros((1, 1), cl.array.vec.float4)
+
+    print "vector : ", vector
     matrix = numpy.zeros((1, 4), cl.array.vec.float4)
     matrix[0, 0] = (1, 2, 4, 8)
     matrix[0, 1] = (16, 32, 64, 128)
