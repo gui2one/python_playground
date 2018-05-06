@@ -82,15 +82,15 @@ def createShader():
 def scenemodel(shader):
     # glRotate(90,0.,0.,1.)
     shaders.glUseProgram(shader)
-    myUniformLocation = glGetUniformLocation(shader, "myUniform");
-    glUniform4f(myUniformLocation, 0.2,0.5,1.0,1.0);
+    myUniformLocation = glGetUniformLocation(shader, "myUniform")
+    glUniform4f(myUniformLocation, 0.2,0.5,1.0,1.0)
     glutSolidTeapot(1.)
     glDeleteProgram(shader)
 
 def cubeModel(shader):
     glTranslate(3.0,0.,0.)
     shaders.glUseProgram(shader)
-    myUniformLocation = glGetUniformLocation(shader, "myUniform");
+    myUniformLocation = glGetUniformLocation(shader, "myUniform")
     glUniform4f(myUniformLocation, 0.9,0.3,0.3,1.0);    
     glutSolidCube(1.)  
     glDeleteProgram(shader)  
@@ -115,9 +115,9 @@ def printHelp():
 def init():
     # glEnable(GL_NORMALIZE)
     glLightfv(GL_LIGHT0,GL_POSITION,[ .0, 10.0, 10., 0. ] )
-    glLightfv(GL_LIGHT0,GL_AMBIENT,[ .0, .0, .0, 1.0 ]);
-    glLightfv(GL_LIGHT0,GL_DIFFUSE,[ 1.0, 1.0, 1.0, 1.0 ]);
-    glLightfv(GL_LIGHT0,GL_SPECULAR,[ 1.0, 1.0, 1.0, 1.0 ]);
+    glLightfv(GL_LIGHT0,GL_AMBIENT,[ .0, .0, .0, 1.0 ])
+    glLightfv(GL_LIGHT0,GL_DIFFUSE,[ 1.0, 1.0, 1.0, 1.0 ])
+    glLightfv(GL_LIGHT0,GL_SPECULAR,[ 1.0, 1.0, 1.0, 1.0 ])
     glEnable(GL_LIGHT0)
     glEnable(GL_LIGHTING)
     glEnable(GL_DEPTH_TEST)
